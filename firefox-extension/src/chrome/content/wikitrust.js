@@ -15,14 +15,9 @@
 	log("content loaded.");
 
 	var page = ev.originalTarget;
-	if (page.nodeName != "#document") {
-	    log("ContentLoaded: page isn't a document.");
-	    return;
-	}
-	if (!page.location) {
-	    log("ContentLoaded: page.location is null.");
-	    return;
-	}
+	if (page.nodeName != "#document") return;
+	if (!page.location) return;
+	if (page.location.host.indexOf('wikipedia.org') < 0) return;
 
 	log("adding trust to page: " + page.location);
 
