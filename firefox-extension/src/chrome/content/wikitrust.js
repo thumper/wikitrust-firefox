@@ -23,6 +23,8 @@
     var baseURL = "http://wiki-trust.cse.ucsc.edu/index.php";
 
     function getTrustURL(loc) {
+	if (/&diff=/.test(loc.search)) return null;
+	if (/&action=/.test(loc.search)) return null;
 	var match = /^\/wiki\/(.*)$/.exec(loc.pathname);
 	if (match != null) return baseURL + "/" + match[1] + loc.search;
 	match = /^\/w\/index\.php(.*)$/.exec(loc.pathname);
@@ -55,6 +57,16 @@
 	if (mainTab.getAttribute("class") != "selected") return;
 
 	var articleURL = getTrustURL(page.location);
+	if (!articleURL) {
+	    var editTab = page.getElementById('ca-edit');
+	    var anchor = findChild(editTab, "A");
+	    var loc = {
+		pathname: anchor.getAttribute("href"),
+		search: '',
+	    };
+	    articleURL = getTrustURL(loc);
+	    articleURL = articleURL.replace(/&action=edit/, '');
+	}
 
 	// And modify page to display "check trust" tab
 	var li_snippet = page.createElement('li');
