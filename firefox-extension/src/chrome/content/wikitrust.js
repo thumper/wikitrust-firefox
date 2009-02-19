@@ -56,13 +56,12 @@
 
 	var anchor = findChild(mainTab, "A");
 	var article = getArticleFromUrl(null, page.location);
+	log("article1 = [" + article + "]");
 	var betterloc = {
 	    pathname: anchor.getAttribute("href"),
 	};
 	article = getArticleFromUrl(article, betterloc);
-	
-
-	log("article = [" + article + "]");
+	log("article2 = [" + article + "]");
 
 	// And modify page to display "check trust" tab
 	var li_snippet = page.createElement('li');
@@ -73,7 +72,6 @@
 
 	var ul = mainTab.parentNode;
 	ul.appendChild(li_snippet);
-	log("added trust to page.");
     }
 
     window.addEventListener("load", function(e) {
