@@ -43,6 +43,79 @@
 	return null;
     }
 
+    function addTrustStyle(page) {
+	var head = page.getElementsByTagName('head')[0];
+	var css = page.createElement('style');
+	css.setAttribute('type', 'text/css');
+	css.inner_HTML= '';
+	head.appendChild(css);
+	return css;
+    }
+
+    function max(a,b) { return (a > b) ? a : b; }
+
+    function darkenPage(page) {
+	var dropSheet=page.createElement('div');
+	dropSheet.setAttribute('id','dropSheet');
+	dropSheet.style.position = 'absolute';
+	dropSheet.style.top = '0px';
+	dropSheet.style.left = '0px';
+	dropSheet.style.overflow = 'hidden';
+	dropSheet.style.MozOpacity = 0.7;
+	dropSheet.style.zIndex = 20;
+	dropSheet.style.backgroundColor='#000000';
+	dropSheet.style.width='100%';
+	dropSheet.style.height='100%';
+
+	var body = page.getElementsByTagName('body')[0];
+	var dropSheetWidth=max(body.scrollWidth,page.documentElement.clientWidth);
+	var dropSheetHeight=max(body.scrollHeight,document.documentElement.clientHeight);
+
+	dropSheet.style.width=dropSheetWidth+'px';
+	dropSheet.style.height=dropSheetHeight+'px';
+
+	body.appendChild(dropSheet);
+
+	return dropSheet;
+    }
+
+    function showDialog(page,width,height){
+	var dialog = page.createElement('div');
+	dialog.id="details";
+	dialog.style.width=width+'px';
+	dialog.style.height=height+'px';
+	dialog.style.position = 'absolute';
+	dialog.style.backgroundColor = '#FF9B00';
+	dialog.style.padding = '5px';
+	dialog.style.textAlign = 'left';
+	dialog.style.overflow = 'auto';
+	dialog.style.color = '#000000';
+	dialog.style.border = '2px solid #000000';
+	dialog.style.font = '18px Arial, Helvetica, sans-serif';
+	dialog.style.zIndex = 30;
+
+	dialog.innerHTML='<p>Downloading trust information now...</p>';
+	var viewportX=page.documentElement.clientWidth;
+	var viewportY=page.documentElement.clientHeight;
+	dialog.style.top=(viewportY/2)-(height/2)+'px';
+	dialog.style.left=(viewportX/2)-(width/2)+'px';
+
+	var body = page.getElementsByTagName('body')[0];
+	body.appendChild(dialog);
+
+	return dialog;
+    }
+
+
+
+    function removeExtras(list){
+	for (var i in list) {
+	    list[i].parentNode.removeChild(list[i]);
+	}
+    }
+
+
+
     function maybeAddTrustTab(page) {
 	log("testing location: " + page.location);
 	var lang = getWikiLang(page.location);
@@ -88,11 +161,14 @@ if (0) {
 	if (!tab) return;
 	if (!/[\?&]trust$/.test(page.location.search)) return;
 	tab.setAttribute('class', 'selected');
+	var addedNodes = new Array();
+	// addedNodes.push(addTrustStyle(page));
+	addedNodes.push(darkenPage(page));
+	addedNodes.push(showDialog(page,300,100));
 	var content = page.getElementById('content');
-	log("content name = " + content.nodeName);
-	content.innerHTML = '<p>Downloading replacement information</p>';
 	// content.style.display = 'none';
 	log("reset content");
+	//removeExtras(addedNodes);
     }
 
     window.addEventListener("load", function(ev) {
