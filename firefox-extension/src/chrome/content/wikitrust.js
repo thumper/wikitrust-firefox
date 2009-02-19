@@ -10,18 +10,6 @@
 		+ now.getTime() + ": " + str);
     }
 
-    var namespaces = {
-	'User' : true,
-	'Wikipedia' : true,
-	'Image' : true,
-	'Talk' : true,
-	'User_talk' : true,
-	'Wikipedia_talk' : true,
-	'Image_talk' : true,
-	'Mediawiki' : true,
-	'Special' : true
-    };
-
     function getWikiLang(loc) {
 	try {
 	    var dom = loc.host.indexOf('.wikipedia.org');
@@ -32,16 +20,25 @@
 	}
     }
 
-    function getArticleFromUrl(loc) {
+    function getArticleFromUrl(prev, loc) {
 	var match = /^\/wiki\/(.*)$/.exec(loc.pathname);
 	if (match != null) return match[1];
 	if (loc.pathname == "/w/index.php") {
 	    match = /title=([^&]+)/.exec(loc.search);
 	    if (match != null) return match[1];
 	}
-	return null;
+	return prev;
     }
 
+    function findChild(root, name) {
+	var children = root.childNodes;
+	for (var i=0; i<children.length; i++) {
+	    var node = children[i];
+	    if (node.nodeType == 1 && node.nodeName == name)
+		return node;
+	}
+	return null;
+    }
 
     function maybeAddTrust(ev) {
 	var page = ev.originalTarget;
@@ -53,46 +50,29 @@
 	if (!lang) return;
 	log("lang = " + lang);
 
-	var article = getArticleFromUrl(page.location);
+	var mainTab = page.getElementById('ca-nstab-main');
+	if (!mainTab) return;		// must not be a main article!
+	if (mainTab.getAttribute("class") != "selected") return;
+
+	var anchor = findChild(mainTab, "A");
+	var article = getArticleFromUrl(null, page.location);
+	var betterloc = {
+	    pathname: anchor.getAttribute("href"),
+	};
+	article = getArticleFromUrl(article, betterloc);
+	
+
 	log("article = [" + article + "]");
 
 	// And modify page to display "check trust" tab
-	var css_snippet = page.createElement('style');
-	css_snippet.innerHTML = '';
-
 	var li_snippet = page.createElement('li');
+	li_snippet.setAttribute("id", "ca-trust");
 	li_snippet.innerHTML = '<a href="http://wiki-trust.cse.ucsc.edu/index.php/'
 	    + article + '" title="Trust colored version of this page">'
 	    + 'trust info</a>';
 
-	var pcActions = page.getElementById('p-cactions');
-	var children = pcActions.childNodes;
-	var pBody = false;
-	for (var i=0; i<children.length; i++) {
-	    var node = children[i];
-	    log("node: " + i);
-	    if (node.nodeType == 1)
-		log("class = " + node.getAttribute("class"));
-	    if (node.nodeType == 1 && node.getAttribute("class") == "pBody") {
-		pBody = node;
-	    }
-	}
-	if (!pBody) {
-	    log("Didn't find pBody");
-	    return;
-	}
-	var ul = false;
-	var children = pBody.childNodes;
-	for (var i = 0; i<children.length; i++) {
-	    var node = children[i];
-	    log("node: " + i);
-	    if (node.nodeType == 1) {
-		log("name = " + node.nodeName);
-		ul = node;
-	    }
-	}
+	var ul = mainTab.parentNode;
 	ul.appendChild(li_snippet);
-
 	log("added trust to page.");
     }
 
