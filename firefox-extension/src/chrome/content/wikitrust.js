@@ -10,18 +10,51 @@
 		+ now.getTime() + ": " + str);
     }
 
+    var namespaces = {
+	'User' : true,
+	'Wikipedia' : true,
+	'Image' : true,
+	'Talk' : true,
+	'User_talk' : true,
+	'Wikipedia_talk' : true,
+	'Image_talk' : true,
+	'Mediawiki' : true,
+	'Special' : true
+    };
+
+    function getWikiLang(loc) {
+	try {
+	    var dom = loc.host.indexOf('.wikipedia.org');
+	    if (dom < 0) return null;
+	    else return loc.host.substr(0, dom);
+	} catch (e) {
+	    return null;
+	}
+    }
+
+    function getArticleFromUrl(loc) {
+	var match = /^\/wiki\/(.*)$/.exec(loc.pathname);
+	if (match != null) return match[1];
+	if (loc.pathname == "/w/index.php") {
+	    match = /title=([^&]+)/.exec(loc.search);
+	    if (match != null) return match[1];
+	}
+	return null;
+    }
+
 
     function maybeAddTrust(ev) {
-	log("content loaded.");
-
 	var page = ev.originalTarget;
 	if (page.nodeName != "#document") return;
 	if (!page.location) return;
-	if (page.location.host.indexOf('wikipedia.org') < 0) return;
 
-	log("adding trust to page: " + page.location);
+	log("testing location: " + page.location);
+	var lang = getWikiLang(page.location);
+	if (!lang) return;
+	log("lang = " + lang);
 
-	var article = 'FIDIS';
+	var article = getArticleFromUrl(page.location);
+	log("article = [" + article + "]");
 
 	// And modify page to display "check trust" tab
 	var css_snippet = page.createElement('style');
