@@ -24,8 +24,9 @@
 
     function getTrustURL(loc) {
 	var match = /^\/wiki\/(.*)$/.exec(loc.pathname);
-	if (match != null) return baseURL + "/" + match[1];
-	if (loc.pathname == "/w/index.php") return baseURL + loc.search;
+	if (match != null) return baseURL + "/" + match[1] + loc.search;
+	match = /^\/w\/index\.php(.*)$/.exec(loc.pathname);
+	if (match != null) return baseURL + match[1] + loc.search;
 	return null;
     }
 
