@@ -88,8 +88,11 @@ if (0) {
 	if (!tab) return;
 	if (!/[\?&]trust$/.test(page.location.search)) return;
 	tab.setAttribute('class', 'selected');
-	var content = document.getElementById('content');
-	content.innerHTML = "<p>Downloading trust data from wikitrust.</p>";
+	var content = page.getElementById('content');
+	log("content name = " + content.nodeName);
+	content.innerHTML = '<p>Downloading replacement information</p>';
+	// content.style.display = 'none';
+	log("reset content");
     }
 
     window.addEventListener("load", function(ev) {
