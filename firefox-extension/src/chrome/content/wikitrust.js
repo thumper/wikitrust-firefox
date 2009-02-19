@@ -46,12 +46,12 @@
     function maybeAddTrustTab(page) {
 	log("testing location: " + page.location);
 	var lang = getWikiLang(page.location);
-	if (!lang) return false;
+	if (!lang) return null;
 	log("lang = " + lang);
 
 	var mainTab = page.getElementById('ca-nstab-main');
-	if (!mainTab) return false;		// must not be a main article!
-	if (mainTab.getAttribute("class") != "selected") return false;
+	if (!mainTab) return null;		// must not be a main article!
+	if (mainTab.getAttribute("class") != "selected") return null;
 
 if (0) {
 	var articleURL = getTrustURL(page.location);
@@ -70,24 +70,24 @@ if (0) {
 	
 
 	// And modify page to display "check trust" tab
-	var li_snippet = page.createElement('li');
-	li_snippet.setAttribute("id", "ca-trust");
-	li_snippet.innerHTML = '<a href="'
+	var li = page.createElement('li');
+	li.setAttribute("id", "ca-trust");
+	li.innerHTML = '<a href="'
 	    + articleURL + '" title="Trust colored version of this page">'
 	    + 'trust info</a>';
 
 	var ul = mainTab.parentNode;
-	ul.appendChild(li_snippet);
+	ul.appendChild(li);
 
 	log("added ca-trust");
 
-	return true;
+	return li;
     }
 
-    function maybeColorPage(page) {
+    function maybeColorPage(page, tab) {
+	if (!tab) return;
 	if (!/[\?&]trust$/.test(page.location.search)) return;
-	var trustTab = document.getElementById('ca-trust');
-	trustTab.setAttribute('class', 'selected');
+	tab.setAttribute('class', 'selected');
 	var content = document.getElementById('content');
 	content.innerHTML = "<p>Downloading trust data from wikitrust.</p>";
     }
@@ -101,8 +101,8 @@ if (0) {
 		if (!page.location) return;
 
 		try {
-		    var added = maybeAddTrustTab(page);
-		    if (added) maybeColorPage(page);
+		    var tab = maybeAddTrustTab(page);
+		    maybeColorPage(page, tab);
 		} catch (e) {
 		    log(e);
 		};
