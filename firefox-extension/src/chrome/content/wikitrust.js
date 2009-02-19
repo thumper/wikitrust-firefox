@@ -11,13 +11,9 @@
     }
 
     function getWikiLang(loc) {
-	try {
-	    var dom = loc.host.indexOf('.wikipedia.org');
-	    if (dom < 0) return null;
-	    else return loc.host.substr(0, dom);
-	} catch (e) {
-	    return null;
-	}
+	var dom = loc.host.indexOf('.wikipedia.org');
+	if (dom < 0) return null;
+	else return loc.host.substr(0, dom);
     }
 
     var baseURL = "http://wiki-trust.cse.ucsc.edu/index.php";
@@ -47,19 +43,15 @@
 	return null;
     }
 
-    function maybeAddTrust(ev) {
-	var page = ev.originalTarget;
-	if (page.nodeName != "#document") return;
-	if (!page.location) return;
-
+    function maybeAddTrustTab(page) {
 	log("testing location: " + page.location);
 	var lang = getWikiLang(page.location);
-	if (!lang) return;
+	if (!lang) return false;
 	log("lang = " + lang);
 
 	var mainTab = page.getElementById('ca-nstab-main');
-	if (!mainTab) return;		// must not be a main article!
-	if (mainTab.getAttribute("class") != "selected") return;
+	if (!mainTab) return false;		// must not be a main article!
+	if (mainTab.getAttribute("class") != "selected") return false;
 
 if (0) {
 	var articleURL = getTrustURL(page.location);
@@ -86,10 +78,34 @@ if (0) {
 
 	var ul = mainTab.parentNode;
 	ul.appendChild(li_snippet);
+
+	log("added ca-trust");
+
+	return true;
     }
 
-    window.addEventListener("load", function(e) {
+    function maybeColorPage(page) {
+	if (!/[\?&]trust$/.test(page.location.search)) return;
+	var trustTab = document.getElementById('ca-trust');
+	trustTab.setAttribute('class', 'selected');
+	var content = document.getElementById('content');
+	content.innerHTML = "<p>Downloading trust data from wikitrust.</p>";
+    }
+
+    window.addEventListener("load", function(ev) {
 	document.getElementById("appcontent").addEventListener(
-		"DOMContentLoaded", maybeAddTrust, false);
+		"DOMContentLoaded",
+	    function(ev) {
+		var page = ev.originalTarget;
+		if (page.nodeName != "#document") return;
+		if (!page.location) return;
+
+		try {
+		    var added = maybeAddTrustTab(page);
+		    if (added) maybeColorPage(page);
+		} catch (e) {
+		    log(e);
+		};
+	    }, false);
     }, false);
 })();
