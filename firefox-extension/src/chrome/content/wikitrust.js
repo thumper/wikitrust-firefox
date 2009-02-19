@@ -20,14 +20,13 @@
 	}
     }
 
-    function getArticleFromUrl(prev, loc) {
+    var baseURL = "http://wiki-trust.cse.ucsc.edu/index.php";
+
+    function getTrustURL(loc) {
 	var match = /^\/wiki\/(.*)$/.exec(loc.pathname);
-	if (match != null) return match[1];
-	if (loc.pathname == "/w/index.php") {
-	    match = /title=([^&]+)/.exec(loc.search);
-	    if (match != null) return match[1];
-	}
-	return prev;
+	if (match != null) return baseURL + "/" + match[1];
+	if (loc.pathname == "/w/index.php") return baseURL + loc.search;
+	return null;
     }
 
     function findChild(root, name) {
@@ -54,20 +53,13 @@
 	if (!mainTab) return;		// must not be a main article!
 	if (mainTab.getAttribute("class") != "selected") return;
 
-	var anchor = findChild(mainTab, "A");
-	var article = getArticleFromUrl(null, page.location);
-	log("article1 = [" + article + "]");
-	var betterloc = {
-	    pathname: anchor.getAttribute("href"),
-	};
-	article = getArticleFromUrl(article, betterloc);
-	log("article2 = [" + article + "]");
+	var articleURL = getTrustURL(page.location);
 
 	// And modify page to display "check trust" tab
 	var li_snippet = page.createElement('li');
 	li_snippet.setAttribute("id", "ca-trust");
-	li_snippet.innerHTML = '<a href="http://wiki-trust.cse.ucsc.edu/index.php/'
-	    + article + '" title="Trust colored version of this page">'
+	li_snippet.innerHTML = '<a href="'
+	    + articleURL + '" title="Trust colored version of this page">'
 	    + 'trust info</a>';
 
 	var ul = mainTab.parentNode;
