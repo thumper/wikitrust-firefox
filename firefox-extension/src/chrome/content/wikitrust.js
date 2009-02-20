@@ -10,6 +10,24 @@
 		+ now.getTime() + ": " + str);
     }
 
+  function async_get(path, success, failure)
+  {
+    if (!path)
+	return failure(null);
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function()
+    {
+      if(request.readyState == 4)
+        if(request.status == 200)
+          success(request);
+        else
+          failure(request);
+    }
+    request.open("GET", path, true, 'betauser', 'cloud');
+    request.send(null);
+  };
+
+
     function getWikiLang(loc) {
 	var dom = loc.host.indexOf('.wikipedia.org');
 	if (dom < 0) return null;
@@ -17,18 +35,22 @@
     }
 
     var baseURL = "http://wiki-trust.cse.ucsc.edu/index.php";
+    var fakeURL = 'http://cloud-master.xurch.com/tmp/olwen.xml';
 
     function getWikiTrustURL(loc) {
 	if (/&diff=/.test(loc.search)) return null;
 	if (/&action=/.test(loc.search)) return null;
 	var match = /^\/wiki\/(.*)$/.exec(loc.pathname);
-	if (match != null) return baseURL + "/" + match[1] + loc.search;
+	// if (match != null) return baseURL + "/" + match[1] + loc.search;
+	if (match != null) return fakeURL;
 	match = /^\/w\/index\.php(.*)$/.exec(loc.pathname);
-	if (match != null) return baseURL + match[1] + loc.search;
+	// if (match != null) return baseURL + match[1] + loc.search;
+	if (match != null) return fakeURL;
 	return null;
     }
 
     function getTrustURL(loc) {
+	if (/[\?&]trust/.test(loc.search)) return loc.href;
 	if (/\?/.test(loc.href)) return loc.href + "&trust";
 	else return loc.href + "?trust";
     }
@@ -44,12 +66,47 @@
     }
 
     function addTrustStyle(page) {
-	var head = page.getElementsByTagName('head')[0];
 	var css = page.createElement('style');
-	css.setAttribute('type', 'text/css');
-	css.inner_HTML= '';
+	//css.setAttribute('type', 'text/css');
+	css.innerHTML= ".trust0 {\n"
+	    + "background-color:#FFB947;\n"
+	    + "}\n"
+	    + ".trust1 {\n"
+	    + "background-color:#FFC05C;\n"
+	    + "}\n"
+	    + ".trust2 {\n"
+	    + "background-color:#FFC870;\n"
+	    + "}\n"
+	    + ".trust3 {\n"
+	    + "background-color:#FFD085;\n"
+	    + "}\n"
+	    + ".trust4 {\n"
+	    + "background-color:#FFD899;\n"
+	    + "}\n"
+	    + ".trust5 {\n"
+	    + "background-color:#FFE0AD;\n"
+	    + "}\n"
+	    + ".trust6 {\n"
+	    + "background-color:#FFE8C2;\n"
+	    + "}\n"
+	    + ".trust7 {\n"
+	    + "background-color:#FFEFD6;\n"
+	    + "}\n"
+	    + ".trust8 {\n"
+	    + "background-color:#FFF7EB;\n"
+	    + "}\n"
+	    + ".trust9 {\n"
+	    + "background-color:#FFFFFF;\n"
+	    + "}\n"
+	    + ".trust10 {\n"
+	    + "background-color:#FFFFFF;\n"
+	    + "}\n";
+	var script = page.createElement('script');
+	script.innerHTML = 'function showOrigin(revnum) { document.location.href = "/w/index.php?title=" + wgPageName + "&oldid=" + revnum; }';
+	var head = page.getElementsByTagName('head')[0];
 	head.appendChild(css);
-	return css;
+	head.appendChild(script);
+	return null;
     }
 
     function max(a,b) { return (a > b) ? a : b; }
@@ -79,7 +136,7 @@
 	return dropSheet;
     }
 
-    function showDialog(page,width,height){
+    function showDialog(page,msg,width,height){
 	var dialog = page.createElement('div');
 	dialog.id="details";
 	dialog.style.width=width+'px';
@@ -94,7 +151,7 @@
 	dialog.style.font = '18px Arial, Helvetica, sans-serif';
 	dialog.style.zIndex = 30;
 
-	dialog.innerHTML='<p>Downloading trust information now...</p>';
+	dialog.innerHTML=msg;
 	var viewportX=page.documentElement.clientWidth;
 	var viewportY=page.documentElement.clientHeight;
 	dialog.style.top=(viewportY/2)-(height/2)+'px';
@@ -162,13 +219,28 @@ if (0) {
 	if (!/[\?&]trust$/.test(page.location.search)) return;
 	tab.setAttribute('class', 'selected');
 	var addedNodes = new Array();
-	// addedNodes.push(addTrustStyle(page));
+	addTrustStyle(page);		// we want to keep this later
 	addedNodes.push(darkenPage(page));
-	addedNodes.push(showDialog(page,300,100));
+	addedNodes.push(showDialog(page,
+		"<p>Downloading trust information...</p>", 300,100));
+	var wtURL = getWikiTrustURL(page.location);
+	log("Requesting trust url = " + wtURL);
 	var content = page.getElementById('content');
-	// content.style.display = 'none';
-	log("reset content");
-	//removeExtras(addedNodes);
+	async_get(wtURL,
+	    function (req) {
+		removeExtras(addedNodes);
+		content.innerHTML = '';
+		if (req.responseXML != null) {
+		    var trustContent = req.responseXML.getElementsByTagName('trustdata')[0].firstChild.nodeValue;
+		    content.innerHTML = trustContent;
+		}
+	    },
+	    function (req) {
+		removeExtras(addedNodes);
+		addedNodes.push(darkenPage(page));
+		addedNodes.push(showDialog(page,
+		    "<p>Failed to contact trust server...</p>", 300,100));
+	    });
     }
 
     window.addEventListener("load", function(ev) {
