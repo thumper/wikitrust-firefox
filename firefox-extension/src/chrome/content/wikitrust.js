@@ -41,26 +41,43 @@
 	else return loc.host.substr(0, dom);
     }
 
-    var baseURL = "http://redherring.cse.ucsc.edu/firefox/frontend/index.php?action=ajax&rs=TextTrustImpl::getColoredText";
     var fakeURL = 'http://cloud-master.xurch.com/tmp/olwen.xml';
 
 
     function getWikiTrustURL(loc) {
 	if (/&diff=/.test(loc.search)) return null;
 	if (/&action=/.test(loc.search)) return null;
-	var match = /^\/wiki\/(.*)$/.exec(loc.pathname);
-	// if (match != null) return baseURL + "/" + match[1] + loc.search;
-	if (match != null) return fakeURL;
-	match = /^\/w\/index\.php(.*)$/.exec(loc.pathname);
-	// if (match != null) return baseURL + match[1] + loc.search;
-	if (match != null) return fakeURL;
-	return null;
+	// return fakeURL;
+	var title = getQueryVariable(loc.search, 'title');
+	if (title == '') {
+	    var match = /^\/wiki\/(.*)$/.exec(loc.pathname);
+	    title = match[1];
+	}
+	if (title == '') {
+	    var match = /^\/w\/index\.php\/(.*)$/.exec(loc.pathname);
+	    title = match[1];
+	}
+	var revID = getQueryVariable(loc.search, 'oldid');
+	if (revID == '') revID = getQueryVariable(loc.search, 'diff');
+
+	if (revID == '' && title == '') {
+	    log("Couldn't figure out vars from: " + loc.href);
+	    return null;
+	}
+
+	var url = "http://redherring.cse.ucsc.edu/firefox/frontend/index.php?action=ajax&rs=TextTrustImpl::getColoredText&rsargs[]=&rsargs[]=" + revID + "&rsargs[]=" + escape(title);
+	return url;
+    }
+
+    function getStrippedURL(loc) {
+	return loc.pathname + loc.search;
     }
 
     function getTrustURL(loc) {
 	if (/[\?&]trust/.test(loc.search)) return loc.href;
-	if (/\?/.test(loc.href)) return loc.href + "&trust";
-	else return loc.href + "?trust";
+	var url = getStrippedURL(loc);
+	if (/\?/.test(url)) return url + "&trust";
+	else return url + "?trust";
     }
 
     function findChild(root, name) {
@@ -218,8 +235,6 @@ if (0) {
 	var ul = mainTab.parentNode;
 	ul.appendChild(trust_li);
 
-	log("added ca-trust");
-
 	var cite_li = page.getElementById('t-cite');
 	if (!cite_li) return null;	
 
@@ -229,27 +244,26 @@ if (0) {
 	vote_a.href = '#voted';
 	vote_a.innerHTML ='Vote for this page';
 	var clickHandler = function (e) {
-		log("got click event");
 		vote_a.innerHTML = 'Voting...';
 		wgUserName = window.content.wrappedJSObject.wgUserName;
 		if (wgUserName == null) wgUserName = '';
 		var wgArticleId = window.content.wrappedJSObject.wgArticleId;
 		var wgPageName = window.content.wrappedJSObject.wgPageName;
 		var wgCurRevisionId = window.content.wrappedJSObject.wgCurRevisionId;
-		log("wgCurRevisionId = " + wgCurRevisionId);
 		if (revID == '') revID = wgCurRevisionId;
 		var url = 'http://redherring.cse.ucsc.edu/firefox/frontend/index.php?action=ajax&rs=TextTrustImpl::handleVote&rsargs[]='+escape(wgUserName)+'&rsargs[]=' + wgArticleId + '&rsargs[]=' + revID + '&rsargs[]=' + escape(wgPageName);
 		log("voting url: " + url);
 		async_get(url,
 		    function (req) {
 			vote_a.innerHTML = 'Thanks for voting!'
-			vote_a.removeEventHandler("click", clickHandler, false);
+			log("Voting request text: " + req.responseText);
+			vote_a.click = null;
 		    },
 		    function (req) {
 			vote_a.innerHTML = 'Voting error.';
 			log("Voting request status: " + req.status);
 			log("Voting request text: " + req.responseText);
-			vote_a.removeEventHandler("click", clickHandler, false);
+			vote_a.click = null;
 		    });
 		return false;
 	    };
@@ -260,8 +274,6 @@ if (0) {
 
 	ul = cite_li.parentNode;
 	ul.appendChild(vote_li);
-
-	log("added t-vote");
 
 	return trust_li;
     }
@@ -280,14 +292,17 @@ if (0) {
 	var content = page.getElementById('content');
 	async_get(wtURL,
 	    function (req) {
+		log("trust page downloaded successfully.");
 		removeExtras(addedNodes);
 		content.innerHTML = '';
 		if (req.responseXML != null) {
 		    var trustContent = req.responseXML.getElementsByTagName('trustdata')[0].firstChild.nodeValue;
 		    content.innerHTML = trustContent;
 		}
+		if (req.responseText != null) log("response text = " + req.responseText);
 	    },
 	    function (req) {
+		log("trust page failed to download, status = " + req.status);
 		removeExtras(addedNodes);
 		addedNodes.push(darkenPage(page));
 		addedNodes.push(showDialog(page,
@@ -304,12 +319,12 @@ if (0) {
 		if (!page.location) return;
 
 
-		try {
+//		try {
 		    var tab = maybeAddTrustTab(page);
 		    maybeColorPage(page, tab);
-		} catch (e) {
-		    log(e);
-		};
+//		} catch (e) {
+//		    log(e);
+//		};
 	    }, false);
     }, false);
 })();
