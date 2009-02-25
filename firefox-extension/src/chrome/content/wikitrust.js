@@ -34,7 +34,7 @@
 	else return loc.host.substr(0, dom);
     }
 
-    var baseURL = "http://wiki-trust.cse.ucsc.edu/index.php";
+    var baseURL = "http://redherring.cse.ucsc.edu/firefox/frontend/index.php?action=ajax&rs=TextTrustImpl::getColoredText";
     var fakeURL = 'http://cloud-master.xurch.com/tmp/olwen.xml';
 
     function getWikiTrustURL(loc) {
