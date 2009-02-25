@@ -10,23 +10,30 @@
 		+ now.getTime() + ": " + str);
     }
 
-  function async_get(path, success, failure)
-  {
-    if (!path)
-	return failure(null);
-    var request = new XMLHttpRequest();
-    request.onreadystatechange = function()
-    {
-      if(request.readyState == 4)
-        if(request.status == 200)
-          success(request);
-        else
-          failure(request);
-    }
-    request.open("GET", path, true, 'betauser', 'cloud');
-    request.send(null);
-  };
+    function async_get(path, success, failure) {
+	if (!path) return failure(null);
+	var request = new XMLHttpRequest();
+	request.onreadystatechange = function() {
+	    if(request.readyState == 4)
+	      if(request.status == 200)
+		success(request);
+	      else
+		failure(request);
+	};
+	request.open("GET", path, true);
+	request.send(null);
+    };
 
+    function getQueryVariable(search, varname) {
+	var query = search.substring(1);
+	var vars = query.split('&');
+	for (var i = 0; i < vars.length; i++) {
+	    var pair = vars[i].split('=');
+	    if (pair[0] == varname)
+		return pair[1];
+	}
+	return '';
+    }
 
     function getWikiLang(loc) {
 	var dom = loc.host.indexOf('.wikipedia.org');
@@ -36,6 +43,7 @@
 
     var baseURL = "http://redherring.cse.ucsc.edu/firefox/frontend/index.php?action=ajax&rs=TextTrustImpl::getColoredText";
     var fakeURL = 'http://cloud-master.xurch.com/tmp/olwen.xml';
+
 
     function getWikiTrustURL(loc) {
 	if (/&diff=/.test(loc.search)) return null;
@@ -65,7 +73,7 @@
 	return null;
     }
 
-    function addTrustStyle(page) {
+    function addTrustHeaders(page) {
 	var css = page.createElement('style');
 	//css.setAttribute('type', 'text/css');
 	css.innerHTML= ".trust0 {\n"
@@ -101,8 +109,10 @@
 	    + ".trust10 {\n"
 	    + "background-color:#FFFFFF;\n"
 	    + "}\n";
+
 	var script = page.createElement('script');
 	script.innerHTML = 'function showOrigin(revnum) { document.location.href = "/w/index.php?title=" + wgPageName + "&oldid=" + revnum; }';
+
 	var head = page.getElementsByTagName('head')[0];
 	head.appendChild(css);
 	head.appendChild(script);
@@ -174,7 +184,6 @@
 
 
     function maybeAddTrustTab(page) {
-	log("testing location: " + page.location);
 	var lang = getWikiLang(page.location);
 	if (!lang) return null;
 	log("lang = " + lang);
@@ -200,26 +209,69 @@ if (0) {
 	
 
 	// And modify page to display "check trust" tab
-	var li = page.createElement('li');
-	li.setAttribute("id", "ca-trust");
-	li.innerHTML = '<a href="'
+	var trust_li = page.createElement('li');
+	trust_li.setAttribute("id", "ca-trust");
+	trust_li.innerHTML = '<a href="'
 	    + articleURL + '" title="Trust colored version of this page">'
 	    + 'trust info</a>';
 
 	var ul = mainTab.parentNode;
-	ul.appendChild(li);
+	ul.appendChild(trust_li);
 
 	log("added ca-trust");
 
-	return li;
+	var cite_li = page.getElementById('t-cite');
+	if (!cite_li) return null;	
+
+	var revID = getQueryVariable(page.location.search, 'oldid');
+	if (revID == '') revID = getQueryVariable(page.location.search, 'diff');
+	var vote_a = page.createElement('a');
+	vote_a.href = '#voted';
+	vote_a.innerHTML ='Vote for this page';
+	var clickHandler = function (e) {
+		log("got click event");
+		vote_a.innerHTML = 'Voting...';
+		wgUserName = window.content.wrappedJSObject.wgUserName;
+		if (wgUserName == null) wgUserName = '';
+		var wgArticleId = window.content.wrappedJSObject.wgArticleId;
+		var wgPageName = window.content.wrappedJSObject.wgPageName;
+		var wgCurRevisionId = window.content.wrappedJSObject.wgCurRevisionId;
+		log("wgCurRevisionId = " + wgCurRevisionId);
+		if (revID == '') revID = wgCurRevisionId;
+		var url = 'http://redherring.cse.ucsc.edu/firefox/frontend/index.php?action=ajax&rs=TextTrustImpl::handleVote&rsargs[]='+escape(wgUserName)+'&rsargs[]=' + wgArticleId + '&rsargs[]=' + revID + '&rsargs[]=' + escape(wgPageName);
+		log("voting url: " + url);
+		async_get(url,
+		    function (req) {
+			vote_a.innerHTML = 'Thanks for voting!'
+			vote_a.removeEventHandler("click", clickHandler, false);
+		    },
+		    function (req) {
+			vote_a.innerHTML = 'Voting error.';
+			log("Voting request status: " + req.status);
+			log("Voting request text: " + req.responseText);
+			vote_a.removeEventHandler("click", clickHandler, false);
+		    });
+		return false;
+	    };
+	vote_a.addEventListener("click", clickHandler, false);
+	var vote_li = page.createElement('li');
+	vote_li.setAttribute('id', 't-vote');
+	vote_li.appendChild(vote_a);
+
+	ul = cite_li.parentNode;
+	ul.appendChild(vote_li);
+
+	log("added t-vote");
+
+	return trust_li;
     }
 
     function maybeColorPage(page, tab) {
 	if (!tab) return;
+	addTrustHeaders(page);
 	if (!/[\?&]trust$/.test(page.location.search)) return;
 	tab.setAttribute('class', 'selected');
 	var addedNodes = new Array();
-	addTrustStyle(page);		// we want to keep this later
 	addedNodes.push(darkenPage(page));
 	addedNodes.push(showDialog(page,
 		"<p>Downloading trust information...</p>", 300,100));
@@ -250,6 +302,7 @@ if (0) {
 		var page = ev.originalTarget;
 		if (page.nodeName != "#document") return;
 		if (!page.location) return;
+
 
 		try {
 		    var tab = maybeAddTrustTab(page);
