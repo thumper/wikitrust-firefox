@@ -134,8 +134,8 @@
 	head.appendChild(css);
 	head.appendChild(script);
 
-	// var tooltipURL = 'http://redherring.cse.ucsc.edu/firefox/frontend/extensions/Trust/js/wz_tooltip.js';
-	var tooltipURL = 'http://www.soe.ucsc.edu/~thumper//wz_tooltip.js';
+	var tooltipURL = 'http://redherring.cse.ucsc.edu/firefox/frontend/extensions/Trust/js/wz_tooltip.js';
+	// var tooltipURL = 'http://www.soe.ucsc.edu/~thumper//wz_tooltip.js';
 	log("Requesting tooltip url = " + tooltipURL);
 	async_get(tooltipURL,
 	    function (req) {
