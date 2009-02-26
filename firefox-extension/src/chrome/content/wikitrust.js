@@ -65,7 +65,7 @@
 	    return null;
 	}
 
-	var url = "http://redherring.cse.ucsc.edu/firefox/frontend/index.php?action=ajax&rs=TextTrustImpl::getColoredText&rsargs[]=&rsargs[]=" + revID + "&rsargs[]=" + escape(title);
+	var url = "http://redherring.cse.ucsc.edu/firefox/frontend/index.php?action=ajax&rs=TextTrustImpl::getColoredText&rsargs[]=" + escape(title) + "&rsargs[]=&rsargs[]=" + revID;
 	return url;
     }
 
@@ -133,6 +133,19 @@
 	var head = page.getElementsByTagName('head')[0];
 	head.appendChild(css);
 	head.appendChild(script);
+
+	// var tooltipURL = 'http://redherring.cse.ucsc.edu/firefox/frontend/extensions/Trust/js/wz_tooltip.js';
+	var tooltipURL = 'http://www.soe.ucsc.edu/~thumper//wz_tooltip.js';
+	log("Requesting tooltip url = " + tooltipURL);
+	async_get(tooltipURL,
+	    function (req) {
+		var script = page.createElement('script');
+		script.innerHTML = req.responseText;
+		head.appendChild(script);
+	    },
+	    function (req) {
+		log("ERROR downloading tooltip code, status = " + req.status);
+	    });
 	return null;
     }
 
@@ -298,8 +311,9 @@ if (0) {
 		if (req.responseXML != null) {
 		    var trustContent = req.responseXML.getElementsByTagName('trustdata')[0].firstChild.nodeValue;
 		    content.innerHTML = trustContent;
+		} else if (req.responseText != null) {
+		    content.innerHTML = req.responseText;
 		}
-		if (req.responseText != null) log("response text = " + req.responseText);
 	    },
 	    function (req) {
 		log("trust page failed to download, status = " + req.status);
