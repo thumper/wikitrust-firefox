@@ -9,3 +9,21 @@ HKCR
 		}
 	}
 }
+
+HKLM {
+  NoRemove SOFTWARE {
+    NoRemove Microsoft {   
+      NoRemove Windows {
+        NoRemove CurrentVersion {
+          NoRemove Explorer {
+            NoRemove 'Browser Helper Objects' {
+              ForceRemove '{E93BF2FC-CE71-433B-8B5A-1740C2930FA2}' = s 'WikiTrustBHO' {
+                val 'NoExplorer' = d '1'
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

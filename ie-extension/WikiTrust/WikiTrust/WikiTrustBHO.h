@@ -3,6 +3,8 @@
 #pragma once
 
 #include <shlguid.h>		// IID_IWebBrowser2, DIID_DWebBrowserEvents2, etc
+#include <exdispid.h>		// DISPID_DOCUMENTCOMPLETE, etc.
+#include <mshtml.h>			// DOM interfaces
 #include "resource.h"       // main symbols
 
 #include "WikiTrust_i.h"
@@ -20,7 +22,8 @@ class ATL_NO_VTABLE CWikiTrustBHO :
 	public CComObjectRootEx<CComSingleThreadModel>,
 	public CComCoClass<CWikiTrustBHO, &CLSID_WikiTrustBHO>,
 	public IObjectWithSiteImpl<CWikiTrustBHO>,
-	public IDispatchImpl<IWikiTrustBHO, &IID_IWikiTrustBHO, &LIBID_WikiTrustLib, /*wMajor =*/ 1, /*wMinor =*/ 0>
+	public IDispatchImpl<IWikiTrustBHO, &IID_IWikiTrustBHO, &LIBID_WikiTrustLib, /*wMajor =*/ 1, /*wMinor =*/ 0>,
+	public IDispEventImpl<1, CWikiTrustBHO, &DIID_DWebBrowserEvents2, &LIBID_SHDocVw, 1, 1>
 {
 public:
 	CWikiTrustBHO()
@@ -54,9 +57,22 @@ public:
 
 	STDMETHOD(SetSite)(IUnknown *pUnkSite);
 
+BEGIN_SINK_MAP(CWikiTrustBHO)
+    SINK_ENTRY_EX(1, DIID_DWebBrowserEvents2, DISPID_DOCUMENTCOMPLETE, OnDocumentComplete)
+    SINK_ENTRY_EX(1, DIID_DWebBrowserEvents2, DISPID_NAVIGATECOMPLETE2, OnNavigateComplete)
+END_SINK_MAP()
+
+    // DWebBrowserEvents2
+    void STDMETHODCALLTYPE OnDocumentComplete(IDispatch *pDisp, VARIANT *pvarURL);
+    void STDMETHODCALLTYPE OnNavigateComplete(IDispatch *pDisp, VARIANT *pvarURL);
+
+private:
+	void RemoveImages(IHTMLDocument2 *pDocument);
+
 private:
 
 	CComPtr<IWebBrowser2> m_spWebBrowser;
+	BOOL m_fAdvised;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(WikiTrustBHO), CWikiTrustBHO)
