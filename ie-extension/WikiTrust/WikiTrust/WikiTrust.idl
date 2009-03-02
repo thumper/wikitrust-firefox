@@ -1,0 +1,36 @@
+// WikiTrust.idl : IDL source for WikiTrust
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (WikiTrust.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	object,
+	uuid(4B067795-64CA-4922-A17E-ED9A41689B0F),
+	dual,
+	nonextensible,
+	helpstring("IWikiTrustBHO Interface"),
+	pointer_default(unique)
+]
+interface IWikiTrustBHO : IDispatch{
+};
+[
+	uuid(CAE9322C-3E6C-4D16-8966-BF1B54452828),
+	version(1.0),
+	helpstring("WikiTrust 1.0 Type Library")
+]
+library WikiTrustLib
+{
+	importlib("stdole2.tlb");
+	[
+		uuid(E93BF2FC-CE71-433B-8B5A-1740C2930FA2),
+		helpstring("WikiTrustBHO Class")
+	]
+	coclass WikiTrustBHO
+	{
+		[default] interface IWikiTrustBHO;
+	};
+};

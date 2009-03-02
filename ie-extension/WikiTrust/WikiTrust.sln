@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WikiTrust", "WikiTrust\WikiTrust.vcproj", "{1AE93C39-C620-4C52-B5AA-287D502A2AC2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WikiTrustPS", "WikiTrust\WikiTrustPS.vcproj", "{2B2631EA-BCD0-4319-AE58-C796D2BFAE52}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1AE93C39-C620-4C52-B5AA-287D502A2AC2} = {1AE93C39-C620-4C52-B5AA-287D502A2AC2}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1AE93C39-C620-4C52-B5AA-287D502A2AC2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1AE93C39-C620-4C52-B5AA-287D502A2AC2}.Debug|Win32.Build.0 = Debug|Win32
+		{1AE93C39-C620-4C52-B5AA-287D502A2AC2}.Release|Win32.ActiveCfg = Release|Win32
+		{1AE93C39-C620-4C52-B5AA-287D502A2AC2}.Release|Win32.Build.0 = Release|Win32
+		{2B2631EA-BCD0-4319-AE58-C796D2BFAE52}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2B2631EA-BCD0-4319-AE58-C796D2BFAE52}.Release|Win32.ActiveCfg = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

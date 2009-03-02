@@ -1,0 +1,11 @@
+HKCR
+{
+	NoRemove AppID
+	{
+		'%APPID%' = s 'WikiTrust'
+		'WikiTrust.DLL'
+		{
+			val AppID = s '%APPID%'
+		}
+	}
+}

@@ -1,0 +1,26 @@
+HKCR
+{
+	WikiTrust.WikiTrustBHO.1 = s 'WikiTrustBHO Class'
+	{
+		CLSID = s '{E93BF2FC-CE71-433B-8B5A-1740C2930FA2}'
+	}
+	WikiTrust.WikiTrustBHO = s 'WikiTrustBHO Class'
+	{
+		CLSID = s '{E93BF2FC-CE71-433B-8B5A-1740C2930FA2}'
+		CurVer = s 'WikiTrust.WikiTrustBHO.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {E93BF2FC-CE71-433B-8B5A-1740C2930FA2} = s 'WikiTrustBHO Class'
+		{
+			ProgID = s 'WikiTrust.WikiTrustBHO.1'
+			VersionIndependentProgID = s 'WikiTrust.WikiTrustBHO'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{CAE9322C-3E6C-4D16-8966-BF1B54452828}'
+		}
+	}
+}
