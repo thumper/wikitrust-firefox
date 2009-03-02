@@ -20,9 +20,9 @@
 	      else
 		failure(request);
 	};
-	request.open("GET", path, true);
+	request.open('GET', path, true);
 	request.send(null);
-    };
+    }
 
     function getQueryVariable(search, varname) {
 	var query = search.substring(1);
@@ -65,7 +65,7 @@
 	    return null;
 	}
 
-	var url = "http://redherring.cse.ucsc.edu/firefox/frontend/index.php?action=ajax&rs=TextTrustImpl::getColoredText&rsargs[]=" + escape(title) + "&rsargs[]=&rsargs[]=" + revID;
+	var url = 'http://redherring.cse.ucsc.edu/firefox/frontend/index.php?action=ajax&rs=TextTrustImpl::getColoredText&rsargs[]=' + escape(title) + '&rsargs[]=&rsargs[]=' + revID;
 	return url;
     }
 
@@ -76,8 +76,8 @@
     function getTrustURL(loc) {
 	if (/[\?&]trust/.test(loc.search)) return loc.href;
 	var url = getStrippedURL(loc);
-	if (/\?/.test(url)) return url + "&trust";
-	else return url + "?trust";
+	if (/\?/.test(url)) return url + '&trust';
+	else return url + '?trust';
     }
 
     function findChild(root, name) {
