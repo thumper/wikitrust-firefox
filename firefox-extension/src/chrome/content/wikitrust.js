@@ -41,22 +41,21 @@
 	else return loc.host.substr(0, dom);
     }
 
-    var fakeURL = 'http://cloud-master.xurch.com/tmp/olwen.xml';
-
+    function getTitleFUrl(loc) {
+	var title = getQueryVariable(loc.search, 'title');
+	if (title != '') return title;
+	var match = /^\/wiki\/(.*)$/.exec(loc.pathname);
+	if (match[1] != '') return match[1];
+	match = /^\/w\/index\.php\/(.*)$/.exec(loc.pathname);
+	if (match[1] != '') return match[1];
+	
+	return null;
+    }
 
     function getWikiTrustURL(loc) {
 	if (/&diff=/.test(loc.search)) return null;
 	if (/&action=/.test(loc.search)) return null;
-	// return fakeURL;
-	var title = getQueryVariable(loc.search, 'title');
-	if (title == '') {
-	    var match = /^\/wiki\/(.*)$/.exec(loc.pathname);
-	    title = match[1];
-	}
-	if (title == '') {
-	    var match = /^\/w\/index\.php\/(.*)$/.exec(loc.pathname);
-	    title = match[1];
-	}
+	var title = getTitleFUrl(loc);
 	var revID = getQueryVariable(loc.search, 'oldid');
 	if (revID == '') revID = getQueryVariable(loc.search, 'diff');
 
@@ -70,11 +69,18 @@
     }
 
     function getStrippedURL(loc) {
+	if (/&diff=/.test(loc.search) || /&action=/.test(loc.search)
+		|| /trust/.test(loc.search))
+	{
+	    var title = getTitleFUrl(loc);
+	    log("stripped action: title = " + title);
+	    return "/wiki/" + title;
+	}
+	log("stripped nothing: search = " + loc.search);
 	return loc.pathname + loc.search;
     }
 
     function getTrustURL(loc) {
-	if (/[\?&]trust/.test(loc.search)) return loc.href;
 	var url = getStrippedURL(loc);
 	if (/\?/.test(url)) return url + '&trust';
 	else return url + '?trust';
