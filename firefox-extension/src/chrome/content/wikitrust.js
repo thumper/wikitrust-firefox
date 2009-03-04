@@ -228,19 +228,6 @@
 	if (!mainTab) return null;		// must not be a main article!
 	if (mainTab.getAttribute("class") != "selected") return null;
 
-if (0) {
-	var articleURL = getTrustURL(page.location);
-	if (!articleURL) {
-	    var editTab = page.getElementById('ca-edit');
-	    var anchor = findChild(editTab, "A");
-	    var loc = {
-		pathname: anchor.getAttribute("href"),
-		search: '',
-	    };
-	    articleURL = getTrustURL(loc);
-	    articleURL = articleURL.replace(/&action=edit/, '');
-	}
-}
 	var articleURL = getTrustURL(page.location);
 	
 
