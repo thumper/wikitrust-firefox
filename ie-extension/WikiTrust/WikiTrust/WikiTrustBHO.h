@@ -70,6 +70,7 @@ private:
 	void RemoveImages(IDispatch *pDocument);
 	void addTrustHeaders(IHTMLDocument2 *pDocument);
 	void addTrustTab();
+	BOOL isWikipediaDomain(wchar_t *url);
 
 private:
 

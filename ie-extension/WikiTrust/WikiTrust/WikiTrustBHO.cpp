@@ -53,14 +53,8 @@ void STDMETHODCALLTYPE CWikiTrustBHO::OnDocumentComplete(IDispatch *pDisp, VARIA
 {
     HRESULT hr = S_OK;
 	BSTR url = pvarURL->bstrVal;
-	if (!url || wcsncmp(url, L"http://", 7)!= 0)
+	if (!isWikipediaDomain(url))
 		return;
-	wchar_t *domain = wcsstr(url+7, L"en.wikipedia.org");
-	if (!domain)
-		return;
-
-
-
 
     // Query for the IWebBrowser2 interface.
     CComQIPtr<IWebBrowser2> spTempWebBrowser = pDisp;
@@ -86,6 +80,10 @@ void STDMETHODCALLTYPE CWikiTrustBHO::OnDocumentComplete(IDispatch *pDisp, VARIA
 
 void STDMETHODCALLTYPE CWikiTrustBHO::OnNavigateComplete(IDispatch *pDisp, VARIANT *pvarURL)
 {
+	BSTR url = pvarURL->bstrVal;
+	if (!isWikipediaDomain(url))
+		return;
+
 #if 1
     HRESULT hr = S_OK;
 #else
@@ -98,6 +96,7 @@ void STDMETHODCALLTYPE CWikiTrustBHO::OnNavigateComplete(IDispatch *pDisp, VARIA
         MessageBox(hwnd, url, L"WikiTrust", MB_OK);
     }
 #endif
+
 
     // Query for the IWebBrowser2 interface.
     CComQIPtr<IWebBrowser2> spTempWebBrowser = pDisp;
@@ -120,6 +119,15 @@ void STDMETHODCALLTYPE CWikiTrustBHO::OnNavigateComplete(IDispatch *pDisp, VARIA
             }
         }
     }
+}
+
+BOOL CWikiTrustBHO::isWikipediaDomain(wchar_t *url) {
+	if (!url || wcsncmp(url, L"http://", 7)!= 0)
+		return FALSE;
+	wchar_t *domain = wcsstr(url+7, L"en.wikipedia.org");
+	if (!domain)
+		return FALSE;
+	return TRUE;
 }
 
 void CWikiTrustBHO::addTrustTab()
