@@ -116,7 +116,7 @@ void STDMETHODCALLTYPE CWikiTrustBHO::OnNavigateComplete(IDispatch *pDisp, VARIA
             if (spHTMLDoc != NULL)
             {
                 // Finally, remove the images.
-                RemoveImages(spHTMLDoc);
+                // # RemoveImages(spHTMLDoc);
             }
         }
     }
@@ -125,13 +125,28 @@ void STDMETHODCALLTYPE CWikiTrustBHO::OnNavigateComplete(IDispatch *pDisp, VARIA
 void CWikiTrustBHO::addTrustTab()
 {
 	CComBSTR jsCode = L"(function() {"
+		L"function getStrippedURL(loc) {"
+		L"    return loc.pathname + loc.search;"
+		L"}"
+		L"function getTrustURL(loc) {"
+		L"    if (/[?&]trust/.test(loc.search)) return loc.href;"
+		L"    var url = getStrippedURL(loc);"
+		L"    if (/[?]/.test(url)) return url + '&trust';"
+		L"    else return url + '?trust';"
+		L"}"
 		L"var mainTab = document.getElementById('ca-nstab-main');"
 		L"if (!mainTab) return;"
 		L"if (mainTab.getAttribute('className') != 'selected') return;"
 		L"var trust_li = document.createElement('li');"
 		L"trust_li.setAttribute('id', 'ca-trust');"
 		L"trust_li.innerHTML = '<a href=\"";
-	jsCode += L"/wiki/Foobar?trust";
+#if 0
+	jsCode += L"/wiki/";
+	jsCode += L"' + escape(wgPageName) + '";
+	jsCode += L"?trust";
+#else
+	jsCode += L"' + getTrustURL(document.location) + '";
+#endif
 	jsCode +=
 		L"\" title=\"Trust colored version of this page\">trust info</a>';"
 		L"var ul = mainTab.parentNode;"
