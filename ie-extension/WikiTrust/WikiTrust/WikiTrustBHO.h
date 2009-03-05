@@ -69,11 +69,12 @@ END_SINK_MAP()
 private:
 	void RemoveImages(IDispatch *pDocument);
 	void addTrustHeaders(IHTMLDocument2 *pDocument);
-	void addTrustTab(IDispatch *pDocument);
+	void addTrustTab();
 
 private:
 
 	CComPtr<IWebBrowser2> m_spWebBrowser;
+	CComPtr<IServiceProvider> m_ServiceProvider;
 	BOOL m_fAdvised;
 };
 

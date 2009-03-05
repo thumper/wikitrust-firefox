@@ -19,6 +19,7 @@ STDMETHODIMP CWikiTrustBHO::SetSite(IUnknown *pUnkSite)
             if (SUCCEEDED(hr))
                 m_fAdvised = TRUE;
 		}
+		pUnkSite->QueryInterface(&m_ServiceProvider);
 	} else {
 		if (m_fAdvised) {
 			DispEventUnadvise(m_spWebBrowser);
@@ -27,6 +28,7 @@ STDMETHODIMP CWikiTrustBHO::SetSite(IUnknown *pUnkSite)
 
 		// Release cached pointers and other resources here.
 		m_spWebBrowser.Release();
+		m_ServiceProvider.Release();
 	}
 
 	// Return the base class implementation
@@ -76,7 +78,7 @@ void STDMETHODCALLTYPE CWikiTrustBHO::OnDocumentComplete(IDispatch *pDisp, VARIA
 	// ...and query for an HTML document.
 
 
-	addTrustTab(spDispDoc);
+	addTrustTab();
 
 	// Finally, remove the images.
 	RemoveImages(spDispDoc);
@@ -120,53 +122,27 @@ void STDMETHODCALLTYPE CWikiTrustBHO::OnNavigateComplete(IDispatch *pDisp, VARIA
     }
 }
 
-void CWikiTrustBHO::addTrustTab(IDispatch* pDocument)
+void CWikiTrustBHO::addTrustTab()
 {
-	CComQIPtr<IHTMLDocument2> spHTML2Doc = pDocument;
-	if (!spHTML2Doc)
-		return;
-	CComQIPtr<IHTMLDocument3> spHTML3Doc = pDocument;
-	if (!spHTML3Doc)
-		return;
+	CComBSTR jsCode = L"(function() {"
+		L"var mainTab = document.getElementById('ca-nstab-main');"
+		L"if (!mainTab) return;"
+		L"if (mainTab.getAttribute('className') != 'selected') return;"
+		L"var trust_li = document.createElement('li');"
+		L"trust_li.setAttribute('id', 'ca-trust');"
+		L"trust_li.innerHTML = '<a href=\"";
+	jsCode += L"/wiki/Foobar?trust";
+	jsCode +=
+		L"\" title=\"Trust colored version of this page\">trust info</a>';"
+		L"var ul = mainTab.parentNode;"
+		L"ul.appendChild(trust_li);"
+		L"}) ();";
 
-	IHTMLElement *mainTab = NULL;
-	HRESULT hr = spHTML3Doc->getElementById(L"ca-nstab-main", &mainTab);
-	if (!SUCCEEDED(hr)) return;
-	if (!mainTab)
-		return;
-	VARIANT	var;
-	hr = mainTab->getAttribute(L"className", 0, &var);
-	if (!SUCCEEDED(hr)) return;
-	if (!var.bstrVal)
-		return;
-	if (wcsncmp(var.bstrVal, L"selected", 8) != 0)
-		return;
-	//
-#if 0
-	CComBSTR test = L"my test";
-	mainTab->put_innerHTML(test);
-#endif
-	//
-	IHTMLElement *trust_li = NULL;
-	hr = spHTML2Doc->createElement(L"li", &trust_li);
-	if (!SUCCEEDED(hr)) return;
-	if (!trust_li)
-		return;
-	CComBSTR anchor = L"<a href='/wiki/";
-	anchor += L"Foobar";			// TODO: should be article title
-	anchor += L"' title='Trust colored version of this page'>trust info</a>";
-	trust_li->put_innerHTML(anchor);
-	IHTMLDOMNode *mainTabDOM;
-	hr = mainTab->QueryInterface(IID_IHTMLDOMNode, (LPVOID*) &mainTabDOM);
-	if (!SUCCEEDED(hr)) return;
-	IHTMLDOMNode *trust_liDOM1 = NULL;
-	IHTMLDOMNode *trust_liDOM2 = NULL;
-	hr = trust_li->QueryInterface(IID_IHTMLDOMNode, (LPVOID*) &trust_liDOM1);
-	if (!SUCCEEDED(hr)) return;
-	IHTMLDOMNode *ulDOM;
-	hr = mainTabDOM->get_parentNode(&ulDOM);
-	if (!SUCCEEDED(hr)) return;
-	hr = ulDOM->appendChild(trust_liDOM1, &trust_liDOM2);
+	CComPtr<IHTMLWindow2> window;
+	m_ServiceProvider->QueryService(IID_IHTMLWindow2,IID_IHTMLWindow2,(void**)&window);
+	if (!window) return;
+	CComVariant vRet;
+	HRESULT hr = window->execScript(jsCode, NULL, &vRet);
 	if (!SUCCEEDED(hr)) return;
 }
 
