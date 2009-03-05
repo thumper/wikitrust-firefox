@@ -67,7 +67,9 @@ END_SINK_MAP()
     void STDMETHODCALLTYPE OnNavigateComplete(IDispatch *pDisp, VARIANT *pvarURL);
 
 private:
-	void RemoveImages(IHTMLDocument2 *pDocument);
+	void RemoveImages(IDispatch *pDocument);
+	void addTrustHeaders(IHTMLDocument2 *pDocument);
+	void addTrustTab(IDispatch *pDocument);
 
 private:
 

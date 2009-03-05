@@ -4,7 +4,7 @@
 
 
  /* File created by MIDL compiler version 7.00.0500 */
-/* at Sun Mar 01 20:43:55 2009
+/* at Wed Mar 04 14:06:21 2009
  */
 /* Compiler settings for .\WikiTrust.idl:
     Oicf, W1, Zp8, env=Win32 (32b run)
