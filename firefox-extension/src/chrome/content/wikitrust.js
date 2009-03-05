@@ -295,17 +295,27 @@
 		"<p>Downloading trust information...</p>", 300,100));
 	var wtURL = getWikiTrustURL(page.location);
 	log("Requesting trust url = " + wtURL);
-	var content = page.getElementById('content');
 	async_get(wtURL,
 	    function (req) {
 		log("trust page downloaded successfully.");
 		removeExtras(addedNodes);
-		content.innerHTML = '';
+		var trustDiv = page.createElement('div');
+		trustDiv.setAttribute('id', 'trust-div');
+		var bodyContent = page.getElementById('bodyContent');
+		var siteSub = page.getElementById('siteSub');
+		var contentSub = page.getElementById('contentSub');
+		var catlinks = page.getElementById('catlinks');
+		bodyContent.innerHTML = '';
+		bodyContent.appendChild(siteSub);
+		bodyContent.appendChild(contentSub);
+		bodyContent.appendChild(trustDiv);
+		bodyContent.appendChild(catlinks);
+		
 		if (req.responseXML != null) {
 		    var trustContent = req.responseXML.getElementsByTagName('trustdata')[0].firstChild.nodeValue;
-		    content.innerHTML = trustContent;
+		    trustDiv.innerHTML = trustContent;
 		} else if (req.responseText != null) {
-		    content.innerHTML = req.responseText;
+		    trustDiv.innerHTML = req.responseText;
 		}
 	    },
 	    function (req) {
