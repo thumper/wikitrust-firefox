@@ -81,6 +81,7 @@
     }
 
     function getTrustURL(loc) {
+	if (/[?&]trust/.test(loc.search)) return loc.href;
 	var url = getStrippedURL(loc);
 	if (/\?/.test(url)) return url + '&trust';
 	else return url + '?trust';
