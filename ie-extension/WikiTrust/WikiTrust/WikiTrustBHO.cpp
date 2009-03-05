@@ -140,13 +140,7 @@ void CWikiTrustBHO::addTrustTab()
 		L"var trust_li = document.createElement('li');"
 		L"trust_li.setAttribute('id', 'ca-trust');"
 		L"trust_li.innerHTML = '<a href=\"";
-#if 0
-	jsCode += L"/wiki/";
-	jsCode += L"' + escape(wgPageName) + '";
-	jsCode += L"?trust";
-#else
 	jsCode += L"' + getTrustURL(document.location) + '";
-#endif
 	jsCode +=
 		L"\" title=\"Trust colored version of this page\">trust info</a>';"
 		L"var ul = mainTab.parentNode;"
