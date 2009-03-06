@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>wikitrust@soe.ucsc.edu</em:id>
-    <em:version>0.2.3</em:version>
+    <em:version>0.2.4</em:version>
     <em:type>2</em:type>
    
     <!-- Target Application this extension can install into, 
@@ -20,11 +20,10 @@
    
     <!-- Front End MetaData -->
     <em:name>WikiTrust</em:name>
-    <em:description>next generation search facilitation</em:description>
+    <em:description>Interface to the UCSC WikiTrust data</em:description>
     <em:iconURL>chrome://wikitrust/content/wt-logo.png</em:iconURL>
     <em:creator>BSI</em:creator>
     <em:developer>B. Thomas Adler</em:developer>
-    <em:homepageURL>http://wikitrust.soe.ucsc.edu/</em:homepageURL>
-    <em:updateURL>https://wikitrust.soe.ucsc.edu/update.rdf</em:updateURL>
+    <em:homepageURL>http://thumper.fastcoder.net/wiki/Wikipedia_Quality/Firefox_UI</em:homepageURL>
   </Description>      
 </RDF>

@@ -1,5 +1,8 @@
+// Copyright 2009, BSI.
+
 (function() {
     const hostname = "wikipedia.org";
+    const newapi = false;
 
     var aConsoleService = Components.classes["@mozilla.org/consoleservice;1"].
 		getService(Components.interfaces.nsIConsoleService);
@@ -64,8 +67,11 @@
 	    return null;
 	}
 
-	var url = 'http://redherring.cse.ucsc.edu/firefox/frontend/index.php?action=ajax&rs=TextTrustImpl::getColoredText&rsargs[]=' + escape(title) + '&rsargs[]=&rsargs[]=' + revID;
-	return url;
+	if (newapi) {
+	    return 'http://redherring.cse.ucsc.edu/firefox/frontend/index.php?action=ajax&rs=TextTrustImpl::getColoredText&rsargs[]=' + escape(title) + '&rsargs[]=&rsargs[]=' + revID;
+	} else {
+	    return 'http://wiki-trust.cse.ucsc.edu/index.php?title=' + escape(title) + '&oldid=' + revID;
+	}
     }
 
     function getStrippedURL(loc) {
@@ -303,20 +309,41 @@
 		var trustDiv = page.createElement('div');
 		trustDiv.setAttribute('id', 'trust-div');
 		var bodyContent = page.getElementById('bodyContent');
-		var siteSub = page.getElementById('siteSub');
-		var contentSub = page.getElementById('contentSub');
-		var catlinks = page.getElementById('catlinks');
-		bodyContent.innerHTML = '';
-		bodyContent.appendChild(siteSub);
-		bodyContent.appendChild(contentSub);
-		bodyContent.appendChild(trustDiv);
-		bodyContent.appendChild(catlinks);
 		
 		if (req.responseXML != null) {
+		    bodyContent.innerHTML = '';
+		    bodyContent.appendChild(trustDiv);
 		    var trustContent = req.responseXML.getElementsByTagName('trustdata')[0].firstChild.nodeValue;
 		    trustDiv.innerHTML = trustContent;
 		} else if (req.responseText != null) {
-		    trustDiv.innerHTML = req.responseText;
+		    if (newapi) {
+			var siteSub = page.getElementById('siteSub');
+			var contentSub = page.getElementById('contentSub');
+			var catlinks = page.getElementById('catlinks');
+			bodyContent.innerHTML = '';
+			bodyContent.appendChild(siteSub);
+			bodyContent.appendChild(contentSub);
+			bodyContent.appendChild(trustDiv);
+			bodyContent.appendChild(catlinks);
+			trustDiv.innerHTML = req.responseText;
+		    } else {
+			bodyContent.innerHTML = '';
+			var marker = 'id="bodyContent">';
+			var startPos = req.responseText.indexOf(marker);
+			if (startPos < 0) {
+			    log("Could not find ["+marker+"] in response.");
+			    return;
+			}
+			startPos += marker.length;
+			var endMarker = '<div id="column-one">';
+			var endPos = req.responseText.indexOf(endMarker);
+			if (endPos < 0) {
+			    log("Could not find ["+endMarker+"] in response.");
+			    return;
+			}
+			log("substring("+startPos+", "+endPos+")");
+			bodyContent.innerHTML  = req.responseText.substring(startPos, endPos);
+		    }
 		}
 	    },
 	    function (req) {
