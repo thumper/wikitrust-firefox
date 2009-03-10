@@ -94,14 +94,14 @@
     }
 
     function fixHrefs(node) {
-        if (0 && node.nodeType != 1)
-            return;
         if (node.nodeName == 'A') {
             var url = node.getAttribute('HREF');
 	    log("node name = " + url);
+	    if (!url) return;
             url.replace(/^\/index.php/, '/wiki');
-	    url += "?trust";
-            node.setAttribute('href', url);
+	    if (url.indexOf('?') == -1)
+		url += "?trust";
+            node.setAttribute('HREF', url);
         }
         var children = node.childNodes;
         for (var i=0; i<children.length; i++) {
@@ -332,6 +332,7 @@
 			bodyContent.appendChild(trustDiv);
 			bodyContent.appendChild(catlinks);
 			trustDiv.innerHTML = req.responseText;
+			fixHrefs(bodyContent);
 		    } else {
 			bodyContent.innerHTML = '';
 			var marker = 'id="bodyContent">';
