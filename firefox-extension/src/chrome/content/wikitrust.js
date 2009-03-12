@@ -330,7 +330,7 @@
 			bodyContent.appendChild(siteSub);
 			bodyContent.appendChild(contentSub);
 			bodyContent.appendChild(trustDiv);
-			bodyContent.appendChild(catlinks);
+			if (catlinks) bodyContent.appendChild(catlinks);
 			trustDiv.innerHTML = req.responseText;
 		    } else {
 			bodyContent.innerHTML = '';
