@@ -1,4 +1,4 @@
-// Copyright 2009, BSI.
+// Copyright 2009, B. Thomas Adler
 
 (function() {
     const hostname = "wikipedia.org";
@@ -93,14 +93,20 @@
 	else return url + '?trust';
     }
 
-    function findChild(root, name) {
-	var children = root.childNodes;
-	for (var i=0; i<children.length; i++) {
-	    var node = children[i];
-	    if (node.nodeType == 1 && node.nodeName == name)
-		return node;
-	}
-	return null;
+    function fixHrefs(node) {
+        if (0 && node.nodeType != 1)
+            return;
+        if (node.nodeName == 'A') {
+            var url = node.getAttribute('HREF');
+	    log("node name = " + url);
+            url.replace(/^\/index.php/, '/wiki');
+	    url += "?trust";
+            node.setAttribute('href', url);
+        }
+        var children = node.childNodes;
+        for (var i=0; i<children.length; i++) {
+            fixHrefs(children[i]);
+        }
     }
 
     function addTrustHeaders(page) {
@@ -343,6 +349,7 @@
 			}
 			log("substring("+startPos+", "+endPos+")");
 			bodyContent.innerHTML  = req.responseText.substring(startPos, endPos);
+			fixHrefs(bodyContent);
 		    }
 		}
 	    },
