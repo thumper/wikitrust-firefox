@@ -97,11 +97,19 @@
         if (node.nodeName == 'A') {
             var url = node.getAttribute('HREF');
 	    log("node name = " + url);
-	    if (!url) return;
-            url.replace(/^\/index.php/, '/wiki');
-	    if (url.indexOf('?') == -1)
-		url += "?trust";
-            node.setAttribute('HREF', url);
+	    if (url) {
+		// url.replace(/^\/index.php/, '/wiki');
+		var sep = '&';
+		if (url.indexOf('?') == -1)
+		    sep = '?';
+		var add = false;
+		if (url.indexOf('wikipedia.org/wiki/') >= 0)
+		    add = true;
+		if (url.indexOf('wikipedia.org/w/index.php') >= 0)
+		    add = true;
+		url += sep + 'trust';
+		node.setAttribute('HREF', url);
+	    }
         }
         var children = node.childNodes;
         for (var i=0; i<children.length; i++) {
@@ -300,7 +308,7 @@
     function maybeColorPage(page, tab) {
 	if (!tab) return;
 	addTrustHeaders(page);
-	if (!/[\?&]trust$/.test(page.location.search)) return;
+	if (!/[?&]trust$/.test(page.location.search)) return;
 	tab.setAttribute('class', 'selected');
 	var addedNodes = new Array();
 	addedNodes.push(darkenPage(page));
