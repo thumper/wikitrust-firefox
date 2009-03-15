@@ -2,7 +2,7 @@
 
 (function() {
     const hostname = "wikipedia.org";
-    const newapi = true;
+    const newapi = false;
 
     var aConsoleService = Components.classes["@mozilla.org/consoleservice;1"].
 		getService(Components.interfaces.nsIConsoleService);
@@ -13,14 +13,31 @@
 		+ now.getTime() + ": " + str);
     }
 
+    var cache = new Array();
+
     function http_get(path, success, failure) {
 	if (!path) return failure(null);
+	log("Cache size: " + cache.length);
+	for (var i in cache) {
+	    var entry = cache[i];
+	    if (entry.url == path) {
+		log("Using cached page: " + path);
+		return success(entry.req);
+	    }
+	}
 	var request = new XMLHttpRequest();
 	request.onreadystatechange = function() {
 	    if(request.readyState == 4)
-	      if(request.status == 200)
+	      if(request.status == 200) {
 		success(request);
-	      else
+		var entry = {
+		    url: path,
+		    req: request
+		};
+		cache.unshift(entry);
+		if (cache.length > 5)
+		    cache.splice(5, cache.length - 5)
+	      } else
 		failure(request);
 	};
 	request.open('GET', path, true);
@@ -357,7 +374,6 @@
 			    log("Could not find ["+endMarker+"] in response.");
 			    return;
 			}
-			log("substring("+startPos+", "+endPos+")");
 			bodyContent.innerHTML  = req.responseText.substring(startPos, endPos);
 			fixHrefs(bodyContent);
 		    }
