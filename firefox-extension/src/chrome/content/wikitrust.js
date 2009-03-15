@@ -13,7 +13,7 @@
 		+ now.getTime() + ": " + str);
     }
 
-    function async_get(path, success, failure) {
+    function http_get(path, success, failure) {
 	if (!path) return failure(null);
 	var request = new XMLHttpRequest();
 	request.onreadystatechange = function() {
@@ -164,7 +164,7 @@
 	var tooltipURL = 'http://redherring.cse.ucsc.edu/firefox/frontend/extensions/Trust/js/wz_tooltip.js';
 	// var tooltipURL = 'http://www.soe.ucsc.edu/~thumper//wz_tooltip.js';
 	log("Requesting tooltip url = " + tooltipURL);
-	async_get(tooltipURL,
+	http_get(tooltipURL,
 	    function (req) {
 		var script = page.createElement('script');
 		script.innerHTML = req.responseText;
@@ -280,7 +280,7 @@
 		if (revID == '') revID = wgCurRevisionId;
 		var url = 'http://redherring.cse.ucsc.edu/firefox/frontend/index.php?action=ajax&rs=TextTrustImpl::handleVote&rsargs[]='+escape(wgUserName)+'&rsargs[]=' + wgArticleId + '&rsargs[]=' + revID + '&rsargs[]=' + escape(wgPageName);
 		log("voting url: " + url);
-		async_get(url,
+		http_get(url,
 		    function (req) {
 			vote_a.innerHTML = 'Thanks for voting!'
 			log("Voting request text: " + req.responseText);
@@ -317,7 +317,7 @@
 	addedNodes.push(showDialog(page,
 		"<p>Downloading trust information...</p>", 300,100));
 	log("Requesting trust url = " + wtURL);
-	async_get(wtURL,
+	http_get(wtURL,
 	    function (req) {
 		log("trust page downloaded successfully.");
 		removeExtras(addedNodes);
