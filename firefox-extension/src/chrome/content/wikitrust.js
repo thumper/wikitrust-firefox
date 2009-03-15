@@ -309,12 +309,13 @@
 	if (!tab) return;
 	addTrustHeaders(page);
 	if (!/[?&]trust$/.test(page.location.search)) return;
+	var wtURL = getWikiTrustURL(page.location);
+	if (!wtURL) return;
 	tab.setAttribute('class', 'selected');
 	var addedNodes = new Array();
 	addedNodes.push(darkenPage(page));
 	addedNodes.push(showDialog(page,
 		"<p>Downloading trust information...</p>", 300,100));
-	var wtURL = getWikiTrustURL(page.location);
 	log("Requesting trust url = " + wtURL);
 	async_get(wtURL,
 	    function (req) {
