@@ -115,16 +115,19 @@
             var url = node.getAttribute('HREF');
 	    log("node name = " + url);
 	    if (url) {
-		// url.replace(/^\/index.php/, '/wiki');
+		if (!newapi)
+		    url = url.replace(/^\/index\.php\//, '/wiki/');
 		var sep = '&';
-		if (url.indexOf('?') == -1)
+		if (url.indexOf('?') == -1) {
 		    sep = '?';
+		}
 		var add = false;
-		if (url.indexOf('wikipedia.org/wiki/') >= 0)
+		if (/^\/wiki\//.test(url))
 		    add = true;
-		if (url.indexOf('wikipedia.org/w/index.php') >= 0)
+		if (/^\/w\/index\.php/.test(url))
 		    add = true;
-		url += sep + 'trust';
+		if (add)
+		    url += sep + 'trust';
 		node.setAttribute('HREF', url);
 	    }
         }
