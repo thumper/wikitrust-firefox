@@ -2,7 +2,7 @@
 
 (function() {
     const hostname = "wikipedia.org";
-    const newapi = true;
+    const newapi = false;
 
     var aConsoleService = Components.classes["@mozilla.org/consoleservice;1"].
 		getService(Components.interfaces.nsIConsoleService);
@@ -115,6 +115,13 @@
         for (var i=0; i<children.length; i++) {
             fixHrefs(children[i]);
         }
+    }
+
+    function getWarningBox(page) {
+	var div = page.createElement('div');
+	div.setAttribute('id', 'mw-revision-info');
+	div.innerHTML="<table id='revision-info' class='plainlinks fmbox fmbox-warning' style='clear: both; margin: 0.2em 0; border: 1px solid #aaa; background: #f9f9f9; width: 100%; background: #FFDBDB; border: 1px solid #BB7070;'><tr><td class='mbox-text'><b>This is an old revision, as provided by the <a href='http://wiki-trust.cse.ucsc.edu/' class='external text'>WikiTrust</a> project.  It may differ significantly from the current revision.</b></td></tr></table>";
+	return div;
     }
 
     function addTrustHeaders(page) {
@@ -327,6 +334,7 @@
 		
 		if (req.responseXML != null) {
 		    bodyContent.innerHTML = '';
+		    bodyContent.appendChild(getWarningBox(page));
 		    bodyContent.appendChild(trustDiv);
 		    var trustContent = req.responseXML.getElementsByTagName('trustdata')[0].firstChild.nodeValue;
 		    trustDiv.innerHTML = trustContent;
@@ -337,6 +345,7 @@
 			var catlinks = page.getElementById('catlinks');
 			bodyContent.innerHTML = '';
 			bodyContent.appendChild(siteSub);
+			bodyContent.appendChild(getWarningBox(page));
 			bodyContent.appendChild(contentSub);
 			bodyContent.appendChild(trustDiv);
 			if (catlinks) bodyContent.appendChild(catlinks);
@@ -360,6 +369,7 @@
 			log("substring("+startPos+", "+endPos+")");
 			bodyContent.innerHTML  = req.responseText.substring(startPos, endPos);
 			fixHrefs(bodyContent);
+			bodyContent.insertBefore(getWarningBox(page), bodyContent.firstChild);
 		    }
 		}
 	    },
