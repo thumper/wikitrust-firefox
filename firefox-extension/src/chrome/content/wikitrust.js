@@ -2,7 +2,7 @@
 
 (function() {
     const hostname = "wikipedia.org";
-    const newapi = false;
+    const newapi = true;
 
     var aConsoleService = Components.classes["@mozilla.org/consoleservice;1"].
 		getService(Components.interfaces.nsIConsoleService);
