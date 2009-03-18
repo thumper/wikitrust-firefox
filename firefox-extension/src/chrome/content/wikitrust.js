@@ -1,7 +1,7 @@
 // Copyright 2009, B. Thomas Adler
 
 (function() {
-    const hostname = "wikipedia.org";
+    const hostname = ".wikipedia.org";
     const newapi = true;
 
     var aConsoleService = Components.classes["@mozilla.org/consoleservice;1"].
@@ -56,7 +56,7 @@
     }
 
     function getWikiLang(loc) {
-	var dom = loc.host.indexOf('.wikipedia.org');
+	var dom = loc.host.indexOf(hostname);
 	if (dom < 0) return null;
 	else return loc.host.substr(0, dom);
     }
@@ -264,6 +264,7 @@
 	var lang = getWikiLang(page.location);
 	if (!lang) return null;
 	log("lang = " + lang);
+	if (lang != 'en') return null;
 
 	var mainTab = page.getElementById('ca-nstab-main');
 	if (!mainTab) return null;		// must not be a main article!
