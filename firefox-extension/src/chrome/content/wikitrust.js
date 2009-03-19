@@ -1,8 +1,8 @@
 // Copyright 2009, B. Thomas Adler
 
 (function() {
-    const hostname = "wikipedia.org";
-    const newapi = false;
+    const hostname = ".wikipedia.org";
+    const newapi = true;
 
     var aConsoleService = Components.classes["@mozilla.org/consoleservice;1"].
 		getService(Components.interfaces.nsIConsoleService);
@@ -13,14 +13,31 @@
 		+ now.getTime() + ": " + str);
     }
 
-    function async_get(path, success, failure) {
+    var cache = new Array();
+
+    function http_get(path, success, failure) {
 	if (!path) return failure(null);
+	log("Cache size: " + cache.length);
+	for (var i in cache) {
+	    var entry = cache[i];
+	    if (entry.url == path) {
+		log("Using cached page: " + path);
+		return success(entry.req);
+	    }
+	}
 	var request = new XMLHttpRequest();
 	request.onreadystatechange = function() {
 	    if(request.readyState == 4)
-	      if(request.status == 200)
+	      if(request.status == 200) {
 		success(request);
-	      else
+		var entry = {
+		    url: path,
+		    req: request
+		};
+		cache.unshift(entry);
+		if (cache.length > 5)
+		    cache.splice(5, cache.length - 5)
+	      } else
 		failure(request);
 	};
 	request.open('GET', path, true);
@@ -39,7 +56,7 @@
     }
 
     function getWikiLang(loc) {
-	var dom = loc.host.indexOf('.wikipedia.org');
+	var dom = loc.host.indexOf(hostname);
 	if (dom < 0) return null;
 	else return loc.host.substr(0, dom);
     }
@@ -98,16 +115,19 @@
             var url = node.getAttribute('HREF');
 	    log("node name = " + url);
 	    if (url) {
-		// url.replace(/^\/index.php/, '/wiki');
+		if (!newapi)
+		    url = url.replace(/^\/index\.php\//, '/wiki/');
 		var sep = '&';
-		if (url.indexOf('?') == -1)
+		if (url.indexOf('?') == -1) {
 		    sep = '?';
+		}
 		var add = false;
-		if (url.indexOf('wikipedia.org/wiki/') >= 0)
+		if (/^\/wiki\//.test(url))
 		    add = true;
-		if (url.indexOf('wikipedia.org/w/index.php') >= 0)
+		if (/^\/w\/index\.php/.test(url))
 		    add = true;
-		url += sep + 'trust';
+		if (add)
+		    url += sep + 'trust';
 		node.setAttribute('HREF', url);
 	    }
         }
@@ -171,7 +191,7 @@
 	var tooltipURL = 'http://redherring.cse.ucsc.edu/firefox/frontend/extensions/Trust/js/wz_tooltip.js';
 	// var tooltipURL = 'http://www.soe.ucsc.edu/~thumper//wz_tooltip.js';
 	log("Requesting tooltip url = " + tooltipURL);
-	async_get(tooltipURL,
+	http_get(tooltipURL,
 	    function (req) {
 		var script = page.createElement('script');
 		script.innerHTML = req.responseText;
@@ -251,6 +271,7 @@
 	var lang = getWikiLang(page.location);
 	if (!lang) return null;
 	log("lang = " + lang);
+	if (lang != 'en') return null;
 
 	var mainTab = page.getElementById('ca-nstab-main');
 	if (!mainTab) return null;		// must not be a main article!
@@ -287,7 +308,7 @@
 		if (revID == '') revID = wgCurRevisionId;
 		var url = 'http://redherring.cse.ucsc.edu/firefox/frontend/index.php?action=ajax&rs=TextTrustImpl::handleVote&rsargs[]='+escape(wgUserName)+'&rsargs[]=' + wgArticleId + '&rsargs[]=' + revID + '&rsargs[]=' + escape(wgPageName);
 		log("voting url: " + url);
-		async_get(url,
+		http_get(url,
 		    function (req) {
 			vote_a.innerHTML = 'Thanks for voting!'
 			log("Voting request text: " + req.responseText);
@@ -324,7 +345,7 @@
 	addedNodes.push(showDialog(page,
 		"<p>Downloading trust information...</p>", 300,100));
 	log("Requesting trust url = " + wtURL);
-	async_get(wtURL,
+	http_get(wtURL,
 	    function (req) {
 		log("trust page downloaded successfully.");
 		removeExtras(addedNodes);
@@ -366,7 +387,6 @@
 			    log("Could not find ["+endMarker+"] in response.");
 			    return;
 			}
-			log("substring("+startPos+", "+endPos+")");
 			bodyContent.innerHTML  = req.responseText.substring(startPos, endPos);
 			fixHrefs(bodyContent);
 			bodyContent.insertBefore(getWarningBox(page), bodyContent.firstChild);
