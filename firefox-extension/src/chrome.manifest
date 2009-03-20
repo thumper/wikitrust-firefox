@@ -1,2 +1,4 @@
 content wikitrust chrome/content/
 overlay chrome://browser/content/browser.xul chrome://wikitrust/content/wikitrust.xul
+overlay chrome://navigator/content/navigator.xul chrome://wikitrust/content/wikitrust.xul
+overlay chrome://midbrowser/content/midbrowser.xul chrome://wikitrust/content/wikitrust.xul

@@ -2,7 +2,20 @@
 
 (function() {
     const hostname = ".wikipedia.org";
-    const newapi = true;
+
+    var prefService = Components.classes["@mozilla.org/preferences-service;1"].
+		getService(Components.interfaces.nsIPrefBranch);
+
+    function getPrefBool(pref, defval) {
+	var prefname = "extensions.wikitrust." + pref;
+	try {
+	    var value = prefService.getBoolPref(prefname);
+	    return value;
+	} catch (ex) {
+	    prefService.setBoolPref(prefname, defval);
+	    return defval;
+	}
+    }
 
     var aConsoleService = Components.classes["@mozilla.org/consoleservice;1"].
 		getService(Components.interfaces.nsIConsoleService);
@@ -84,7 +97,7 @@
 	    return null;
 	}
 
-	if (newapi) {
+	if (getPrefBool('newapi', false)) {
 	    return 'http://redherring.cse.ucsc.edu/firefox/frontend/index.php?action=ajax&rs=TextTrustImpl::getColoredText&rsargs[]=' + escape(title) + '&rsargs[]=&rsargs[]=' + revID;
 	} else {
 	    return 'http://wiki-trust.cse.ucsc.edu/index.php?title=' + escape(title) + '&oldid=' + revID;
@@ -115,7 +128,7 @@
             var url = node.getAttribute('HREF');
 	    log("node name = " + url);
 	    if (url) {
-		if (!newapi)
+		if (!getPrefBool('newapi', false))
 		    url = url.replace(/^\/index\.php\//, '/wiki/');
 		var sep = '&';
 		if (url.indexOf('?') == -1) {
@@ -140,7 +153,10 @@
     function getWarningBox(page) {
 	var div = page.createElement('div');
 	div.setAttribute('id', 'mw-revision-info');
-	div.innerHTML="<table id='revision-info' class='plainlinks fmbox fmbox-warning' style='clear: both; margin: 0.2em 0; border: 1px solid #aaa; background: #f9f9f9; width: 100%; background: #FFDBDB; border: 1px solid #BB7070;'><tr><td class='mbox-text'><b>This is an old revision, as provided by the <a href='http://wiki-trust.cse.ucsc.edu/' class='external text'>WikiTrust</a> project.  It may differ significantly from the current revision.</b></td></tr></table>";
+	var provider = "the <a href='http://wiki-trust.cse.ucsc.edu/' class='external text'>WikiTrust</a> project";
+	if (getPrefBool('newapi', false))
+	    provider = "the new WikiTrust AJAX API";
+	div.innerHTML="<table id='revision-info' class='plainlinks fmbox fmbox-warning' style='clear: both; margin: 0.2em 0; border: 1px solid #aaa; background: #f9f9f9; width: 100%; background: #FFDBDB; border: 1px solid #BB7070;'><tr><td class='mbox-text'><b>This is an old revision, as provided by "+provider+".  It may differ significantly from the current revision.</b></td></tr></table>";
 	return div;
     }
 
@@ -360,7 +376,7 @@
 		    var trustContent = req.responseXML.getElementsByTagName('trustdata')[0].firstChild.nodeValue;
 		    trustDiv.innerHTML = trustContent;
 		} else if (req.responseText != null) {
-		    if (newapi) {
+		    if (getPrefBool('newapi', false)) {
 			var siteSub = page.getElementById('siteSub');
 			var contentSub = page.getElementById('contentSub');
 			var catlinks = page.getElementById('catlinks');
