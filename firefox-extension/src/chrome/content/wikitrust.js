@@ -26,20 +26,11 @@
 		+ now.getTime() + ": " + str);
     }
 
-    var cache = new Array();
-
     function http_get(path, success, failure) {
 	if (!path) return failure(null);
-	log("Cache size: " + cache.length);
-	for (var i in cache) {
-	    var entry = cache[i];
-	    if (entry.url == path) {
-		log("Using cached page: " + path);
-		return success(entry.req);
-	    }
-	}
 	var request = new XMLHttpRequest();
 	request.onreadystatechange = function() {
+	    log("http_get: readyState=" + request.readyState + ", status=" + request.status + ", path=" + path);
 	    if(request.readyState == 4)
 	      if(request.status == 200) {
 		success(request);
@@ -47,13 +38,11 @@
 		    url: path,
 		    req: request
 		};
-		cache.unshift(entry);
-		if (cache.length > 5)
-		    cache.splice(5, cache.length - 5)
 	      } else
 		failure(request);
 	};
 	request.open('GET', path, true);
+	request.setRequestHeader("Cache-Control", "max-age=0");
 	request.send(null);
     }
 
@@ -126,7 +115,6 @@
     function fixHrefs(node) {
         if (node.nodeName == 'A') {
             var url = node.getAttribute('HREF');
-	    log("node name = " + url);
 	    if (url) {
 		if (!getPrefBool('newapi', false))
 		    url = url.replace(/^\/index\.php\//, '/wiki/');
