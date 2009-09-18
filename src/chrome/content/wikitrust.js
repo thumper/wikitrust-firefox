@@ -100,6 +100,12 @@
 	    log("Couldn't figure out vars from: " + loc.href);
 	    return null;
 	}
+	if (!/^\d+$/.test(revID) || !/^\d+$/.test(wgArticleId)) {
+	    log("Bad vars from: " + loc.href);
+	    log("revID=["+revID+"]");
+	    log("wgArticleId=["+revID+"]");
+	    return null;
+	}
 
 	var url = getPrefStr('wgScriptPath', default_url);
 	url += 'index.php?action=ajax&rs=WikiTrust::ajax_getColoredText'
@@ -249,13 +255,21 @@
 	    var vote_a = page.getElementById('wt-vote-link');
 	    var vote_1 = page.getElementById('vote-button');
 	    var vote_2 = page.getElementById('vote-button-done');
-	    var wgUserName = window.content.wrappedJSObject.wgUserName;
+	    var safeWin = page.defaultView;
+	    var unsafeWin = safeWin.wrappedJSObject;
+	    var wgUserName = unsafeWin.wgUserName;
 	    if (wgUserName == null) wgUserName = '';
-	    var wgArticleId = window.content.wrappedJSObject.wgArticleId;
-	    var wgPageName = window.content.wrappedJSObject.wgPageName;
-	    var wgCurRevisionId = window.content.wrappedJSObject.wgCurRevisionId;
+	    var wgArticleId = unsafeWin.wgArticleId;
+	    var wgPageName = unsafeWin.wgPageName;
+	    var wgCurRevisionId = unsafeWin.wgCurRevisionId;
 	    if (vote_a) vote_a.innerHTML = 'Voting...';
 	    if (revID == '') revID = wgCurRevisionId;
+	    if (!/^\d+$/.test(revID) || !/^\d+$/.test(wgArticleId)) {
+		log("vote: revID=["+revID+"]");
+		log("vote: wgArticleId=["+revID+"]");
+		return false;
+	    }
+
 	    var url = getPrefStr('wgScriptPath', default_url);
 	    url += 'index.php?action=ajax&rs=WikiTrust::ajax_recordVote'
 		    + '&rsargs[]='+escape(wgUserName)
