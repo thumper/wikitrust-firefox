@@ -9,12 +9,12 @@
 
         <RDF:li>
           <RDF:Description>
-            <em:version>0.3.0</em:version>
+            <em:version>0.3.1</em:version>
             <em:targetApplication>
               <RDF:Description>
                 <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
                 <em:minVersion>1.5</em:minVersion>
-                <em:maxVersion>3.1.*</em:maxVersion>
+                <em:maxVersion>3.5.*</em:maxVersion>
 
                 <em:updateLink>https://wikitrust.soe.ucsc.edu/updates/wikitrust-0.3.0.xpi</em:updateLink>
                 <em:updateInfoURL>https://wikitrust.soe.ucsc.edu/updates/wikitrust-0.3.0.xhtml</em:updateInfoURL>

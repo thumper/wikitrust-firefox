@@ -41,13 +41,9 @@
 	request.onreadystatechange = function() {
 	    // log("http_get: readyState=" + request.readyState + ", status=" + request.status + ", path=" + path);
 	    if(request.readyState == 4)
-	      if(request.status == 200) {
+	      if(request.status == 200)
 		success(request);
-		var entry = {
-		    url: path,
-		    req: request
-		};
-	      } else
+	      else
 		failure(request);
 	};
 	request.open('GET', path, true);
@@ -84,7 +80,8 @@
 	return null;
     }
 
-    function getWikiTrustURL(loc) {
+    function getWikiTrustURL(page) {
+	var loc = page.location;
 	if (/&diff=/.test(loc.search)) return null;
 	if (/&action=/.test(loc.search)) return null;
 	var title = getTitleFUrl(loc);
@@ -92,9 +89,11 @@
 	var revID = getQueryVariable(loc.search, 'oldid');
 	if (revID == '') revID = getQueryVariable(loc.search, 'diff');
 	try {
+	    var safeWin = page.defaultView;
+	    var unsafeWin = safeWin.wrappedJSObject;
 	    if (revID == '')
-		revID = window.content.wrappedJSObject.wgCurRevisionId;
-	    wgArticleId = window.content.wrappedJSObject.wgArticleId;
+		revID = unsafeWin.wgCurRevisionId;
+	    wgArticleId = unsafeWin.wgArticleId;
 	} catch (x) { alert(x); }
 
 	if (revID == '' && wgArticleId == '' && title == '') {
@@ -197,7 +196,7 @@
 
 	var body = page.getElementsByTagName('body')[0];
 	var dropSheetWidth=max(body.scrollWidth,page.documentElement.clientWidth);
-	var dropSheetHeight=max(body.scrollHeight,document.documentElement.clientHeight);
+	var dropSheetHeight=max(body.scrollHeight,page.documentElement.clientHeight);
 
 	dropSheet.style.width=dropSheetWidth+'px';
 	dropSheet.style.height=dropSheetHeight+'px';
@@ -333,7 +332,7 @@
 	if (!tab) return;
 	addTrustHeaders(page);
 	if (!/[?&]trust\b/.test(page.location.search)) return;
-	var wtURL = getWikiTrustURL(page.location);
+	var wtURL = getWikiTrustURL(page);
 	if (!wtURL) return;
 	tab.setAttribute('class', 'selected');
 	var addedNodes = new Array();
@@ -343,6 +342,7 @@
 	log("Requesting trust url = " + wtURL);
 	http_get(wtURL,
 	    function (req) {
+		log("http_get: "+wtURL);
 		log("trust page downloaded successfully.");
 		removeExtras(addedNodes);
 		var trustDiv = page.createElement('div');
@@ -390,6 +390,7 @@
 		if (page.nodeName != "#document") return;
 		if (!page.location) return;
 
+		log("DOMContentLoaded event for loc="+page.location);
 
 		try {
 		    var tab = maybeAddTrustTab(page);
