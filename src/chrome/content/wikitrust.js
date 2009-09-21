@@ -1,8 +1,15 @@
 // Copyright 2009, B. Thomas Adler
 
 (function() {
-    var default_url = 'http://wikitrust.fastcoder.net:10032/';
-    var prefService = Components.classes["@mozilla.org/preferences-service;1"].
+    const MAX_TRUST_VALUE = 9;
+    const MIN_TRUST_VALUE = 0;
+    const TRUST_MULTIPLIER = 10;
+    const COLORS = [ "trust0", "trust1", "trust2", "trust3", "trust4", "trust5", "trust6", "trust7", "trust9", "trust10" ];
+
+    const default_MwURL = 'http://wikitrust.fastcoder.net:10032/'; // mediawiki
+    const default_MpURL = 'http://wikitrust.fastcoder.net:8034/'; // modperl
+    const default_WpURL = 'http://en.wikipedia.org/w/api.php'; // wikipedia
+    const prefService = Components.classes["@mozilla.org/preferences-service;1"].
 		getService(Components.interfaces.nsIPrefBranch);
 
     function getPrefBool(pref, defval) {
@@ -39,7 +46,6 @@
 	if (!path) return failure(null);
 	var request = new XMLHttpRequest();
 	request.onreadystatechange = function() {
-	    // log("http_get: readyState=" + request.readyState + ", status=" + request.status + ", path=" + path);
 	    if(request.readyState == 4)
 	      if(request.status == 200)
 		success(request);
@@ -47,8 +53,25 @@
 		failure(request);
 	};
 	request.open('GET', path, true);
-	request.setRequestHeader("Cache-Control", "max-age=0");
+	//request.setRequestHeader("Cache-Control", "max-age=0");
 	request.send(null);
+    }
+
+    function http_post(path, params, success, failure) {
+	if (!path) return failure(null);
+	var req = new XMLHttpRequest();
+	req.onreadystatechange = function() {
+	    if(req.readyState == 4)
+	      if(req.status == 200)
+		success(req);
+	      else
+		failure(req);
+	};
+	req.open('POST', path, true);
+	req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	req.setRequestHeader("Content-Length", params.length);
+	req.setRequestHeader("Connection", "close");
+	req.send(params);
     }
 
     function getQueryVariable(search, varname) {
@@ -65,8 +88,10 @@
     function isEnabledWiki(loc) {
 	var hostname = "en.wikipedia.org";
 	hostname = getPrefStr('hostname', hostname);
-	if (loc.host == hostname) return true;
-	else return false;
+	try {
+	    if (loc.host == hostname) return true;
+	    else return false;
+	} catch (x) { return false; }
     }
 
     function getTitleFUrl(loc) {
@@ -107,11 +132,11 @@
 	    return null;
 	}
 
-	var url = getPrefStr('wgScriptPath', default_url);
-	url += 'index.php?action=ajax&rs=WikiTrust::ajax_getColoredText'
-	    + '&rsargs[]=' + escape(title)
-	    + '&rsargs[]=' + wgArticleId
-	    + '&rsargs[]=' + revID;
+	var url = getPrefStr('wtModPerl', default_MpURL);
+	url += '?method=gettext'
+	    + '&title=' + encodeURIComponent(title)
+	    + '&pageid=' + wgArticleId
+	    + '&revid=' + revID;
 	return url;
     }
 
@@ -132,6 +157,71 @@
 	var url = getStrippedURL(loc);
 	if (/\?/.test(url)) return url + '&trust';
 	else return url + '?trust';
+    }
+
+    function color_Wiki2Html(title, medianTrust, colored_text, continuation) {
+	var genericHandler = function (preserve) {
+	    return function (match, one, two, three, four) {
+		try {
+		    var trust = parseFloat(one) + 0.5;
+		    var normalized_value = min(MAX_TRUST_VALUE,
+			    max(MIN_TRUST_VALUE,
+				(trust * TRUST_MULTIPLIER / medianTrust)
+			    ));
+		    var class = COLORS[Math.round(normalized_value)];
+		    var replace = '<span class="'+class+'" onclick="showOrigin('
+			+ two + ')">'+preserve(four)+'</span>';
+		    return replace;
+		} catch (x) {
+		    log(x);
+		    return preserve(four);
+		}
+	    };
+	};
+
+	// First, clean tags around links
+	var templates = /\{\{#t:(\d+),(\d+),([^}]+)\}\}\s*\[\[([^\]]+)\]\]\*(?=\{\{#t:|$)/g;
+	colored_text = colored_text.replace(templates,
+	    genericHandler(function(txt) { return '[['+txt+']]'; })
+	);
+
+	// Need Wikipedia parser to do some work, too.
+	var wpurl = getPrefStr('wpApiUrl', default_WpURL);
+	var params = '&action=parse&format=json'
+		+ '&title=' + encodeURIComponent(title)
+		+ '&text='  + encodeURIComponent(colored_text);
+	http_post(wpurl, params,
+	    function(req) {
+		var json = eval('('+req.responseText+')');
+		var colored_text = json.parse.text['*']
+			+ '<br/><table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>The article text is colored according to how much it has been revised.  An orange background indicates new, unrevised, text;  white is for text that has been revised by many reputed authors.  If you click on a word, you will be redirected to the diff corresponding to the edit where the word was introduced.</td></tr>'
+			+ '<tr><td>The text color and origin are computed by <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>; if you notice problems, you can submit a bug report <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">here</a>.</td></tr>'
+			+ '</table>';
+		json = undefined;
+
+		// Fix edit section links
+		colored_text = colored_text.replace(/title="Edit section: (.*?)">/g,
+		    function (match, one) {
+			one = one.replace(/\{\{#t:\d+,\d+,[^}]+\}\}/g, '');
+			return 'title="Edit section: '+one+'">';
+		    }
+		);
+
+		// Fix trust tags with plain text after
+		var plaintxt = /\{\{#t:(\d+),(\d+),([^}]+)\}\}([^\{<]*)(?=\{\{#t|<|$)/g;
+		colored_text = colored_text.replace(plaintxt,
+		    genericHandler(function(txt) { return txt; })
+		);
+
+		// And eliminate any remaining trust tags
+		colored_text = colored_text.replace(/\{\{#t:\d+,\d+,[^}]+\}\}/g, '');
+
+		return continuation(colored_text);
+	    },
+	    function(req) {
+		continuation('');
+	    });
     }
 
     function fixHrefs(node) {
@@ -162,12 +252,12 @@
 	var css = page.createElement('link');
 	css.setAttribute('rel', 'stylesheet');
 	css.setAttribute('type', 'text/css');
-	var url = getPrefStr('wgScriptPath', default_url);
+	var url = getPrefStr('wgScriptPath', default_MwURL);
 	url = url + "/extensions/WikiTrust/css/trust.css";
 	css.setAttribute('href', url);
 
 	var script = page.createElement('script');
-	var url = getPrefStr('wgScriptPath', default_url);
+	var url = getPrefStr('wgScriptPath', default_MwURL);
 	url = url + '/extensions/WikiTrust/js/trust.js';
 	script.setAttribute('src', url);
 	// script.innerHTML = 'function showOrigin(revnum) { document.location.href = "/w/index.php?title=" + wgPageName + "&oldid=" + revnum; }';
@@ -177,7 +267,7 @@
 	head.appendChild(script);
 
 	var tscript = page.createElement('script');
-	var turl = getPrefStr('wgScriptPath', default_url);
+	var turl = getPrefStr('wgScriptPath', default_MwURL);
 	turl = turl + '/extensions/WikiTrust/js/wz_tooltip.js';
 	tscript.setAttribute('src', turl);
 	head.appendChild(tscript);
@@ -186,6 +276,7 @@
     }
 
     function max(a,b) { return (a > b) ? a : b; }
+    function min(a,b) { return (a < b) ? a : b; }
 
     function darkenPage(page) {
 	var dropSheet=page.createElement('div');
@@ -270,12 +361,14 @@
 		return false;
 	    }
 
-	    var url = getPrefStr('wgScriptPath', default_url);
+	    // Need to go through MW interface, because we don't
+	    // have access to userid
+	    var url = getPrefStr('wgScriptPath', default_MwURL);
 	    url += 'index.php?action=ajax&rs=WikiTrust::ajax_recordVote'
-		    + '&rsargs[]='+escape(wgUserName)
+		    + '&rsargs[]='+ encodeURIComponent(wgUserName)
 		    + '&rsargs[]=' + wgArticleId
 		    + '&rsargs[]=' + revID
-		    + '&rsargs[]=' + escape(wgPageName);
+		    + '&rsargs[]=' + encodeURIComponent(wgPageName);
 	    log("voting url: " + url);
 	    if (vote_1) vote_1.style.visibility='hidden';
 	    if (vote_2) vote_2.style.visibility='visible';
@@ -344,8 +437,8 @@
 
     function maybeColorPage(page, tab) {
 	if (!tab) return;
-	addTrustHeaders(page);
 	if (!/[?&]trust\b/.test(page.location.search)) return;
+	addTrustHeaders(page);
 	var wtURL = getWikiTrustURL(page);
 	if (!wtURL) return;
 	tab.setAttribute('class', 'selected');
@@ -354,46 +447,56 @@
 	addedNodes.push(showDialog(page,
 		"<p>Downloading trust information...</p>", 300,100));
 	log("Requesting trust url = " + wtURL);
-	http_get(wtURL,
-	    function (req) {
-		log("http_get: "+wtURL);
-		log("trust page downloaded successfully.");
-		removeExtras(addedNodes);
-		var trustDiv = page.createElement('div');
-		trustDiv.setAttribute('id', 'trust-div');
-		var bodyContent = page.getElementById('bodyContent');
-		
-		if (req.responseXML != null) {
-		    bodyContent.innerHTML = '';
-		    bodyContent.appendChild(trustDiv);
-		    var trustContent = req.responseXML.getElementsByTagName('trustdata')[0].firstChild.nodeValue;
-		    trustDiv.innerHTML = trustContent;
-		} else if (req.responseText != null) {
-		    var siteSub = page.getElementById('siteSub');
-		    var contentSub = page.getElementById('contentSub');
-		    var catlinks = page.getElementById('catlinks');
-		    bodyContent.innerHTML = '';
-		    bodyContent.appendChild(siteSub);
-		    bodyContent.appendChild(contentSub);
-		    bodyContent.appendChild(trustDiv);
-		    if (catlinks) bodyContent.appendChild(catlinks);
-		    trustDiv.innerHTML = req.responseText;
-		    fixHrefs(bodyContent);
-		    var expl = page.getElementById('wt-expl');
-		    if (expl) bodyContent.insertBefore(expl, bodyContent.firstChild);
-		    var coords = page.getElementById('coordinates');
-		    if (coords) coords.style.cssText = 'top: -20px !important';
-		    var voteButton = page.getElementById('wt-vote-button');
-		    addVotingHandler(page, voteButton);
-		}
-	    },
-	    function (req) {
+	var failureFunc = function (req) {
 		log("trust page failed to download, status = " + req.status);
 		removeExtras(addedNodes);
 		addedNodes.push(darkenPage(page));
 		addedNodes.push(showDialog(page,
 		    "<p>Failed to contact trust server...</p>", 300,100));
-	    });
+	    };
+	http_get(wtURL, function (req) {
+		log("http_get: "+wtURL);
+		log("trust page downloaded successfully.");
+		if (req.responseText == null) {
+		    log("ERROR: empty response");
+		    return failureFunc(req);
+		}
+		try {
+		    var colored_text = req.responseText;
+		    var comma = colored_text.indexOf(',');
+		    var medianTrust = parseFloat(colored_text.substr(0, comma));
+		    colored_text = colored_text.substring(comma+1);
+		    var title = getTitleFUrl(page.location);
+		    color_Wiki2Html(title, medianTrust, colored_text, function(txt) {
+			if (!txt) {
+			    log("ERROR: no color info");
+			    return failureFunc(req);
+			}
+
+			removeExtras(addedNodes);
+			var trustDiv = page.createElement('div');
+			trustDiv.setAttribute('id', 'trust-div');
+
+			var bodyContent = page.getElementById('bodyContent');
+			var siteSub = page.getElementById('siteSub');
+			var contentSub = page.getElementById('contentSub');
+			var catlinks = page.getElementById('catlinks');
+			bodyContent.innerHTML = '';
+			bodyContent.appendChild(siteSub);
+			bodyContent.appendChild(contentSub);
+			bodyContent.appendChild(trustDiv);
+			if (catlinks) bodyContent.appendChild(catlinks);
+			trustDiv.innerHTML = txt;
+			fixHrefs(bodyContent);
+			var expl = page.getElementById('wt-expl');
+			if (expl) bodyContent.insertBefore(expl, bodyContent.firstChild);
+			var coords = page.getElementById('coordinates');
+			if (coords) coords.style.cssText = 'top: -20px !important';
+			var voteButton = page.getElementById('wt-vote-button');
+			addVotingHandler(page, voteButton);
+		    });
+		} catch(x) { log("maybeColorPage: "+x); }
+	    }, failureFunc);
     }
 
     window.addEventListener("load", function(ev) {
