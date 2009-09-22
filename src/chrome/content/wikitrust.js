@@ -418,6 +418,7 @@
 	var cite_li = page.getElementById('t-cite');
 	if (!cite_li) return null;	
 
+if (0) {
 	var vote_a = page.createElement('a');
 	vote_a.setAttribute('id', 'wt-vote-link');
 	vote_a.href = '#voted';
@@ -430,6 +431,7 @@
 
 	ul = cite_li.parentNode;
 	ul.appendChild(vote_li);
+}
 
 	return trust_li;
     }
@@ -498,8 +500,10 @@
 			if (expl) bodyContent.insertBefore(expl, bodyContent.firstChild);
 			var coords = page.getElementById('coordinates');
 			if (coords) coords.style.cssText = 'top: -20px !important';
+if (0) {
 			var voteButton = page.getElementById('wt-vote-button');
 			addVotingHandler(page, voteButton);
+}
 		    });
 		} catch(x) { log("maybeColorPage: "+x); }
 	    }, failureFunc);
