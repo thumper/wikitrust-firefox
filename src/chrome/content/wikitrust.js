@@ -133,7 +133,7 @@
 	}
 
 	var url = getPrefStr('wtModPerl', default_MpURL);
-	url += '?method=gettext'
+	url += '?method=wikiorhtml'
 	    + '&title=' + encodeURIComponent(title)
 	    + '&pageid=' + wgArticleId
 	    + '&revid=' + revID;
@@ -431,7 +431,6 @@
 	ul = cite_li.parentNode;
 	ul.appendChild(vote_li);
 
-
 	return trust_li;
     }
 
@@ -462,10 +461,17 @@
 		    return failureFunc(req);
 		}
 		try {
-		    var colored_text = req.responseText;
-		    var comma = colored_text.indexOf(',');
-		    var medianTrust = parseFloat(colored_text.substr(0, comma));
-		    colored_text = colored_text.substring(comma+1);
+		    var responseType = req.responseText.substr(0,1);
+		    if (responseType != 'W') {
+			// Should be one of 'W' or 'H', but we only
+			// handle 'W' for now
+			return failureFunc(req);
+		    }
+		    var comma = req.responseText.indexOf(',');
+		    if (comma < 0)
+			return failureFunc(req);
+		    var medianTrust = parseFloat(req.responseText.substr(1, comma-1));
+		    var colored_text = req.responseText.substr(comma+1);
 		    var title = getTitleFUrl(page.location);
 		    color_Wiki2Html(title, medianTrust, colored_text, function(txt) {
 			if (!txt) {
