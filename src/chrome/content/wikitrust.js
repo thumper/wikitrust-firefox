@@ -1,13 +1,15 @@
 // Copyright 2009, B. Thomas Adler
 
 (function() {
+    const domainname = '.wikipedia.org';
+
     const MAX_TRUST_VALUE = 9;
     const MIN_TRUST_VALUE = 0;
     const TRUST_MULTIPLIER = 10;
     const COLORS = [ "trust0", "trust1", "trust2", "trust3", "trust4", "trust5", "trust6", "trust7", "trust9", "trust10" ];
 
     const default_MwURL = 'http://wikitrust.fastcoder.net:10032/'; // mediawiki
-    const default_MpURL = 'http://wikitrust.fastcoder.net:8034/'; // modperl
+    const default_MpURL = '.collaborativetrust.com/WikiTrust/RemoteAPI'; // modperl
     const default_WpURL = 'http://en.wikipedia.org/w/api.php'; // wikipedia
     const prefService = Components.classes["@mozilla.org/preferences-service;1"].
 		getService(Components.interfaces.nsIPrefBranch);
@@ -85,13 +87,20 @@
 	return '';
     }
 
-    function isEnabledWiki(loc) {
-	var hostname = "en.wikipedia.org";
-	hostname = getPrefStr('hostname', hostname);
+    function getWikiLang(loc) {
 	try {
-	    if (loc.host == hostname) return true;
-	    else return false;
-	} catch (x) { return false; }
+	    var dompos = loc.host.indexOf(domainname);
+	    if (dompos < 0) return null;
+	    else return loc.host.substr(0, dompos);
+	} catch (x) {
+	    return null;
+	}
+    }
+
+    function isEnabledWiki(lang) {
+	if (lang == "en") return true;
+	if (lang == "it") return true;
+	return false;
     }
 
     function getTitleFUrl(loc) {
@@ -107,6 +116,8 @@
 
     function getWikiTrustURL(page) {
 	var loc = page.location;
+	var lang = getWikiLang(loc);
+	if (!isEnabledWiki(lang)) return null;
 	if (/&diff=/.test(loc.search)) return null;
 	if (/&action=/.test(loc.search)) return null;
 	var title = getTitleFUrl(loc);
@@ -132,7 +143,7 @@
 	    return null;
 	}
 
-	var url = getPrefStr('wtModPerl', default_MpURL);
+	var url = 'http://'+ lang + getPrefStr('wtModPerl', default_MpURL);
 	url += '?method=wikiorhtml'
 	    + '&title=' + encodeURIComponent(title)
 	    + '&pageid=' + wgArticleId
@@ -391,7 +402,8 @@
     }
 
     function maybeAddTrustTab(page) {
-	if (!isEnabledWiki(page.location)) return null;
+	var lang = getWikiLang(page.location);
+	if (!isEnabledWiki(lang)) return null;
 
 	var mainTab = page.getElementById('ca-nstab-main');
 	if (!mainTab) return null;		// we only add to main articles
