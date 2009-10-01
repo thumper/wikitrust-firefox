@@ -10,7 +10,7 @@
 
     const default_MwURL = 'http://wikitrust.fastcoder.net:10032/'; // mediawiki
     const default_MpURL = '.collaborativetrust.com/WikiTrust/RemoteAPI'; // modperl
-    const default_WpURL = 'http://en.wikipedia.org/w/api.php'; // wikipedia
+    const default_WpURL = '.wikipedia.org/w/api.php'; // wikipedia
     const prefService = Components.classes["@mozilla.org/preferences-service;1"].
 		getService(Components.interfaces.nsIPrefBranch);
 
@@ -170,7 +170,7 @@
 	else return url + '?trust';
     }
 
-    function color_Wiki2Html(title, medianTrust, colored_text, continuation) {
+    function color_Wiki2Html(lang, title, medianTrust, colored_text, continuation) {
 	var genericHandler = function (preserve) {
 	    return function (match, one, two, three, four) {
 		try {
@@ -197,7 +197,7 @@
 	);
 
 	// Need Wikipedia parser to do some work, too.
-	var wpurl = getPrefStr('wpApiUrl', default_WpURL);
+	var wpurl = 'http://' + lang + getPrefStr('wpApiUrl', default_WpURL);
 	var params = '&action=parse&format=json'
 		+ '&title=' + encodeURIComponent(title)
 		+ '&text='  + encodeURIComponent(colored_text);
@@ -216,6 +216,12 @@
 		    function (match, one) {
 			one = one.replace(/\{\{#t:\d+,\d+,[^}]+\}\}/g, '');
 			return 'title="Edit section: '+one+'">';
+		    }
+		);
+		colored_text = colored_text.replace(/title="Modifica la sezione (.*?)">/g,
+		    function (match, one) {
+			one = one.replace(/\{\{#t:\d+,\d+,[^}]+\}\}/g, '');
+			return 'title="Modifica la sezione '+one+'">';
 		    }
 		);
 
@@ -487,7 +493,8 @@ if (0) {
 		    var medianTrust = parseFloat(req.responseText.substr(1, comma-1));
 		    var colored_text = req.responseText.substr(comma+1);
 		    var title = getTitleFUrl(page.location);
-		    color_Wiki2Html(title, medianTrust, colored_text, function(txt) {
+		    var lang = getWikiLang(page.location);
+		    color_Wiki2Html(lang, title, medianTrust, colored_text, function(txt) {
 			if (!txt) {
 			    log("ERROR: no color info");
 			    return failureFunc(req);
