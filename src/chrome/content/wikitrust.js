@@ -468,39 +468,42 @@ if (0) {
 	addedNodes.push(showDialog(page,
 		"<p>Downloading trust information...</p>", 300,100));
 	log("Requesting trust url = " + wtURL);
-	var failureFunc = function (req) {
-		log("trust page failed to download, status = " + req.status);
+	function failureFunc(logmsg, msg) {
+	    return function (req) {
+		log(logmsg+", status = " + req.status);
 		removeExtras(addedNodes);
 		addedNodes.push(darkenPage(page));
 		addedNodes.push(showDialog(page,
-		    "<p>Failed to contact trust server...</p>", 300,100));
+		    "<p>"+msg+"</p>", 300,100));
 	    };
+	}
 	http_get(wtURL, function (req) {
 		log("http_get: "+wtURL);
 		log("trust page downloaded successfully.");
-		if (req.responseText == null) {
-		    log("ERROR: empty response");
-		    return failureFunc(req);
-		}
+		if (req.responseText == null)
+		    return (failureFunc("Empty response", "Bad response from trust server"))(req);
 		try {
 		    var responseType = req.responseText.substr(0,1);
 		    if (responseType != 'W') {
 			// Should be one of 'W' or 'H', but we only
 			// handle 'W' for now
-			return failureFunc(req);
+			return (failureFunc("Invalid response", "Bad response from trust server"))(req);
+		    }
+		    if (req.responseText.indexOf("TEXT_NOT_FOUND")==1) {
+			return (failureFunc("No text found", "Coloring not available.  Please try again later."))(req);
 		    }
 		    var comma = req.responseText.indexOf(',');
-		    if (comma < 0)
-			return failureFunc(req);
+		    if (comma < 0) {
+			log(req.responseText);
+			return (failureFunc("No comma", "Bad response from trust server"))(req);
+		    }
 		    var medianTrust = parseFloat(req.responseText.substr(1, comma-1));
 		    var colored_text = req.responseText.substr(comma+1);
 		    var title = getTitleFUrl(page.location);
 		    var lang = getWikiLang(page.location);
 		    color_Wiki2Html(lang, title, medianTrust, colored_text, function(txt) {
-			if (!txt) {
-			    log("ERROR: no color info");
-			    return failureFunc(req);
-			}
+			if (!txt)
+			    return (failureFunc("No color info", "Bad response from Wikipedia"))(req);
 
 			removeExtras(addedNodes);
 			var trustDiv = page.createElement('div');
@@ -527,7 +530,7 @@ if (0) {
 }
 		    });
 		} catch(x) { log("maybeColorPage: "+x); }
-	    }, failureFunc);
+	    }, failureFunc("No response from server", "Unable to contact trust server"));
     }
 
     window.addEventListener("load", function(ev) {
