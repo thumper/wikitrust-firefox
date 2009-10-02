@@ -8,8 +8,7 @@
     const TRUST_MULTIPLIER = 10;
     const COLORS = [ "trust0", "trust1", "trust2", "trust3", "trust4", "trust5", "trust6", "trust7", "trust9", "trust10" ];
 
-    const default_MwURL = 'http://wikitrust.fastcoder.net:10032/'; // mediawiki
-    const default_MpURL = '.collaborativetrust.com/WikiTrust/RemoteAPI'; // modperl
+    const default_WtURL = '.collaborativetrust.com/WikiTrust/'; // wikitrust
     const default_WpURL = '.wikipedia.org/w/api.php'; // wikipedia
     const prefService = Components.classes["@mozilla.org/preferences-service;1"].
 		getService(Components.interfaces.nsIPrefBranch);
@@ -143,8 +142,8 @@
 	    return null;
 	}
 
-	var url = 'http://'+ lang + getPrefStr('wtModPerl', default_MpURL);
-	url += '?method=wikiorhtml'
+	var url = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
+	url += 'RemoteAPI?method=wikiorhtml'
 	    + '&title=' + encodeURIComponent(title)
 	    + '&pageid=' + wgArticleId
 	    + '&revid=' + revID;
@@ -266,26 +265,27 @@
     }
 
     function addTrustHeaders(page) {
+	var lang = getWikiLang(page.location);
+
 	var css = page.createElement('link');
 	css.setAttribute('rel', 'stylesheet');
 	css.setAttribute('type', 'text/css');
-	var url = getPrefStr('wgScriptPath', default_MwURL);
-	url = url + "/extensions/WikiTrust/css/trust.css";
+	var url = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
+	url += 'css/trust.css';
 	css.setAttribute('href', url);
 
 	var script = page.createElement('script');
-	var url = getPrefStr('wgScriptPath', default_MwURL);
-	url = url + '/extensions/WikiTrust/js/trust.js';
+	var url = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
+	url += 'js/trust.js';
 	script.setAttribute('src', url);
-	// script.innerHTML = 'function showOrigin(revnum) { document.location.href = "/w/index.php?title=" + wgPageName + "&oldid=" + revnum; }';
 
 	var head = page.getElementsByTagName('head')[0];
 	head.appendChild(css);
 	head.appendChild(script);
 
 	var tscript = page.createElement('script');
-	var turl = getPrefStr('wgScriptPath', default_MwURL);
-	turl = turl + '/extensions/WikiTrust/js/wz_tooltip.js';
+	var turl = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
+	turl += 'js/wz_tooltip.js';
 	tscript.setAttribute('src', turl);
 	head.appendChild(tscript);
 
@@ -380,7 +380,9 @@
 
 	    // Need to go through MW interface, because we don't
 	    // have access to userid
-	    var url = getPrefStr('wgScriptPath', default_MwURL);
+	    // TODO: need to fix this to use modperl code
+	    var lang = getWikiLang(page.location);
+	    var url = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
 	    url += 'index.php?action=ajax&rs=WikiTrust::ajax_recordVote'
 		    + '&rsargs[]='+ encodeURIComponent(wgUserName)
 		    + '&rsargs[]=' + wgArticleId
