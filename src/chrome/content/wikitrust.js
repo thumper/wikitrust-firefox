@@ -487,6 +487,7 @@ if (0) {
 		    if (responseType != 'W') {
 			// Should be one of 'W' or 'H', but we only
 			// handle 'W' for now
+			log(req.responseText);
 			return (failureFunc("Invalid response", "Bad response from trust server"))(req);
 		    }
 		    if (req.responseText.indexOf("TEXT_NOT_FOUND")==1) {
