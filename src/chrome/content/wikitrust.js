@@ -229,16 +229,10 @@
 		json = undefined;
 
 		// Fix edit section links
-		colored_text = colored_text.replace(/title="Edit section: (.*?)">/g,
-		    function (match, one) {
-			one = one.replace(/\{\{#t:\d+,\d+,[^}]+\}\}/g, '');
-			return 'title="Edit section: '+one+'">';
-		    }
-		);
-		colored_text = colored_text.replace(/title="Modifica la sezione (.*?)">/g,
-		    function (match, one) {
-			one = one.replace(/\{\{#t:\d+,\d+,[^}]+\}\}/g, '');
-			return 'title="Modifica la sezione '+one+'">';
+		colored_text = colored_text.replace(/<span class="editsection">(.*?) title="(.*?)">/g,
+		    function (match, one, two) {
+			two = two.replace(/\{\{#t:\d+,\d+,[^}]+\}\}/g, '');
+			return '<span class="editsection">'+one+' title="'+two+'">';
 		    }
 		);
 
