@@ -1,6 +1,17 @@
 // Copyright 2009, B. Thomas Adler
 
 (function() {
+  const langmsgs = { en: { success: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>The article text is colored according to how much it has been revised.  An orange background indicates new, unrevised, text;  white is for text that has been revised by many reputed authors.  If you click on a word, you will be redirected to the diff corresponding to the edit where the word was introduced.</td></tr>'
+			+ '<tr><td>The text color and origin are computed by <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>; if you notice problems, you can submit a bug report <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">here</a>.</td></tr>'
+			+ '</table>',
+			tabhover:  'Trust colored version of this page',
+			tabtext: 'trust info'
+ },
+		it: { tabhover: 'NEED TRANSLATION',
+			tabtext: 'trust me' },
+	};
+
     const domainname = '.wikipedia.org';
 
     const MAX_TRUST_VALUE = 9;
@@ -97,9 +108,20 @@
     }
 
     function isEnabledWiki(lang) {
-	if (lang == "en") return true;
-	if (lang == "it") return true;
+	if (lang in langmsgs) return true;
 	return false;
+    }
+
+    function getMsg(lang, msg) {
+	if (!(lang in langmsgs)) lang = 'en';
+	if (!(msg in langmsgs[lang])) lang = 'en';
+	return langmsgs[lang][msg];
+    }
+
+    function getBoxedMsg(page, lang, msg) {
+	var box=page.createElement('div');
+	box.innerHTML = getMsg(lang,msg);
+	return box;
     }
 
     function getTitleFUrl(loc) {
@@ -203,11 +225,7 @@
 	http_post(wpurl, params,
 	    function(req) {
 		var json = eval('('+req.responseText+')');
-		var colored_text = json.parse.text['*']
-			+ '<br/><table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
-			+ '<tr><td>The article text is colored according to how much it has been revised.  An orange background indicates new, unrevised, text;  white is for text that has been revised by many reputed authors.  If you click on a word, you will be redirected to the diff corresponding to the edit where the word was introduced.</td></tr>'
-			+ '<tr><td>The text color and origin are computed by <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>; if you notice problems, you can submit a bug report <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">here</a>.</td></tr>'
-			+ '</table>';
+		var colored_text = json.parse.text['*'];
 		json = undefined;
 
 		// Fix edit section links
@@ -428,9 +446,9 @@
 	// And modify page to display "check trust" tab
 	trust_li = page.createElement('li');
 	trust_li.setAttribute("id", "ca-trust");
-	trust_li.innerHTML = '<a href="'
-	    + articleURL + '" title="Trust colored version of this page">'
-	    + 'trust info</a>';
+	trust_li.innerHTML = '<a href="' + articleURL
+	    + '" title="' + getMsg(lang, 'tabhover') + '">'
+	    + getMsg(lang, 'tabtext') + '</a>';
 
 	var ul = mainTab.parentNode;
 	ul.appendChild(trust_li);
@@ -521,7 +539,7 @@ if (0) {
 			if (catlinks) bodyContent.appendChild(catlinks);
 			trustDiv.innerHTML = txt;
 			fixHrefs(bodyContent);
-			var expl = page.getElementById('wt-expl');
+			var expl = getBoxedMsg(page, lang, 'success');
 			if (expl) bodyContent.insertBefore(expl, bodyContent.firstChild);
 			var coords = page.getElementById('coordinates');
 			if (coords) coords.style.cssText = 'top: -20px !important';
