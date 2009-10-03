@@ -6,8 +6,17 @@
 			+ '<tr><td>The text color and origin are computed by <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>; if you notice problems, you can submit a bug report <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">here</a>.</td></tr>'
 			+ '</table>',
 			tabhover:  'Trust colored version of this page',
-			tabtext: 'trust info'
- },
+			tabtext: 'trust info',
+			downloadtrust: '<p>Downloading trust information from UCSC...</p>',
+			downloadhtml: '<p>Requesting HTML from Wikipedia...</p>',
+			ErrWpAPI: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>There was an error while contacting Wikipedia for HTML content.</td></tr></table>',
+			ErrBadTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>There was an error while contacting UCSC for the trust content.</td></tr></table>',
+			ErrNoTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>There is no trust coloring information currently available for the revision you requested.  '
+			+ 'Please try again in 5 minutes, when the coloring should be complete.</td></tr></table>'
+		 },
 		it: { tabhover: 'NEED TRANSLATION',
 			tabtext: 'trust me' },
 	};
@@ -191,7 +200,7 @@
 	else return url + '?trust';
     }
 
-    function color_Wiki2Html(lang, title, medianTrust, colored_text, continuation) {
+    function color_Wiki2Html(lang, title, medianTrust, colored_text, continuation, failureFunc) {
 	var genericHandler = function (preserve) {
 	    return function (match, one, two, three, four) {
 		try {
@@ -247,9 +256,8 @@
 
 		return continuation(colored_text);
 	    },
-	    function(req) {
-		continuation('');
-	    });
+	    failureFunc('Unable to reach Wikipedia API', 'ErrWpAPI')
+	    );
     }
 
     function fixHrefs(node) {
@@ -362,8 +370,9 @@
 
 
     function removeExtras(list){
-	for (var i in list) {
-	    list[i].parentNode.removeChild(list[i]);
+	while (list.length > 0) {
+	    var child = list.pop();
+	    child.parentNode.removeChild(child);
 	}
     }
 
@@ -471,52 +480,55 @@ if (0) {
     function maybeColorPage(page, tab) {
 	if (!tab) return;
 	if (!/[?&]trust\b/.test(page.location.search)) return;
+	var lang = getWikiLang(page.location);
 	addTrustHeaders(page);
 	var wtURL = getWikiTrustURL(page);
 	if (!wtURL) return;
 	tab.setAttribute('class', 'selected');
 	var addedNodes = new Array();
 	addedNodes.push(darkenPage(page));
-	addedNodes.push(showDialog(page,
-		"<p>Downloading trust information...</p>", 300,100));
+	addedNodes.push(showDialog(page, getMsg(lang, 'downloadtrust'), 300,100));
 	log("Requesting trust url = " + wtURL);
-	function failureFunc(logmsg, msg) {
+	var failureFunc = function (logmsg, msg) {
 	    return function (req) {
-		log(logmsg+", status = " + req.status);
+		if (req) log(logmsg+", status = " + req.status);
 		removeExtras(addedNodes);
-		addedNodes.push(darkenPage(page));
-		addedNodes.push(showDialog(page,
-		    "<p>"+msg+"</p>", 300,100));
+		var bodyContent = page.getElementById('bodyContent');
+		var box = getBoxedMsg(page, lang, msg);
+		if (bodyContent && box) bodyContent.insertBefore(box, bodyContent.firstChild);
 	    };
 	}
 	http_get(wtURL, function (req) {
 		log("http_get: "+wtURL);
 		log("trust page downloaded successfully.");
 		if (req.responseText == null)
-		    return (failureFunc("Empty response", "Bad response from trust server"))(req);
+		    return (failureFunc('Empty response', 'ErrBadTrust'))(req);
 		try {
 		    var responseType = req.responseText.substr(0,1);
 		    if (responseType != 'W') {
 			// Should be one of 'W' or 'H', but we only
 			// handle 'W' for now
 			log(req.responseText);
-			return (failureFunc("Invalid response", "Bad response from trust server"))(req);
+			return (failureFunc('Invalid response', 'ErrBadTrust'))(req);
 		    }
 		    if (req.responseText.indexOf("TEXT_NOT_FOUND")==1) {
-			return (failureFunc("No text found", "Coloring not available.  Please try again later."))(req);
+			return (failureFunc('No text found', 'ErrNoTrust'))(req);
 		    }
 		    var comma = req.responseText.indexOf(',');
 		    if (comma < 0) {
 			log(req.responseText);
-			return (failureFunc("No comma", "Bad response from trust server"))(req);
+			return (failureFunc('No comma', 'ErrBadTrust'))(req);
 		    }
 		    var medianTrust = parseFloat(req.responseText.substr(1, comma-1));
 		    var colored_text = req.responseText.substr(comma+1);
 		    var title = getTitleFUrl(page.location);
-		    var lang = getWikiLang(page.location);
+		    removeExtras(addedNodes);
+		    addedNodes.push(darkenPage(page));
+		    addedNodes.push(showDialog(page, getMsg(lang, 'downloadhtml'), 300,100));
+
 		    color_Wiki2Html(lang, title, medianTrust, colored_text, function(txt) {
 			if (!txt)
-			    return (failureFunc("No color info", "Bad response from Wikipedia"))(req);
+			    return (failureFunc('No color info', 'ErrWpAPI'))(req);
 
 			removeExtras(addedNodes);
 			var trustDiv = page.createElement('div');
@@ -541,9 +553,9 @@ if (0) {
 			var voteButton = page.getElementById('wt-vote-button');
 			addVotingHandler(page, voteButton);
 }
-		    });
-		} catch(x) { log("maybeColorPage: "+x); }
-	    }, failureFunc("No response from server", "Unable to contact trust server"));
+		    }, failureFunc);
+		} catch(x) { log('maybeColorPage: '+x); }
+	    }, failureFunc('No response from server', 'ErrBadTrust'));
     }
 
     window.addEventListener("load", function(ev) {
