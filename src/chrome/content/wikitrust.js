@@ -23,6 +23,8 @@
 
     const domainname = '.wikipedia.org';
 
+    const FEATURE_TOOLTIP = false;
+    const FEATURE_VOTING = false;
     const MAX_TRUST_VALUE = 9;
     const MIN_TRUST_VALUE = 0;
     const TRUST_MULTIPLIER = 10;
@@ -303,11 +305,13 @@
 	head.appendChild(css);
 	head.appendChild(script);
 
+if (FEATURE_TOOLTIP) {
 	var tscript = page.createElement('script');
 	var turl = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
 	turl += 'js/wz_tooltip.js';
 	tscript.setAttribute('src', turl);
 	head.appendChild(tscript);
+}
 
 	return null;
     }
@@ -459,7 +463,7 @@
 	var cite_li = page.getElementById('t-cite');
 	if (!cite_li) return null;	
 
-if (0) {
+if (FEATURE_VOTING) {
 	var vote_a = page.createElement('a');
 	vote_a.setAttribute('id', 'wt-vote-link');
 	vote_a.href = '#voted';
@@ -549,7 +553,7 @@ if (0) {
 			if (expl) bodyContent.insertBefore(expl, bodyContent.firstChild);
 			var coords = page.getElementById('coordinates');
 			if (coords) coords.style.cssText = 'top: -20px !important';
-if (0) {
+if (FEATURE_VOTING) {
 			var voteButton = page.getElementById('wt-vote-button');
 			addVotingHandler(page, voteButton);
 }
