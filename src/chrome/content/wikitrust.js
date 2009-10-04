@@ -146,7 +146,7 @@
 	return null;
     }
 
-    function getWikiTrustURL(page) {
+    function getWikiParams(page) {
 	var loc = page.location;
 	var lang = getWikiLang(loc);
 	if (!isEnabledWiki(lang)) return null;
@@ -174,14 +174,10 @@
 	    log("wgArticleId=["+revID+"]");
 	    return null;
 	}
-
-	var url = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
-	url += 'RemoteAPI?method=wikiorhtml'
-	    + '&title=' + encodeURIComponent(title)
-	    + '&pageid=' + wgArticleId
-	    + '&revid=' + revID;
-	return url;
+	return [title, wgArticleId, revID];
     }
+
+    
 
     function getStrippedURL(loc) {
 	if (/&diff=/.test(loc.search) || /&action=/.test(loc.search)
@@ -202,7 +198,7 @@
 	else return url + '?trust';
     }
 
-    function color_Wiki2Html(lang, title, medianTrust, colored_text, continuation, failureFunc) {
+    function color_Wiki2Html(lang, title, revid, medianTrust, colored_text, continuation, failureFunc) {
 	var genericHandler = function (preserve) {
 	    return function (match, one, two, three, four) {
 		try {
@@ -222,6 +218,7 @@
 	    };
 	};
 
+      try {
 	// First, clean tags around links
 	var templates = /\{\{#t:(\d+),(\d+),([^}]+)\}\}\s*\[\[([^\]]+)\]\]\*(?=\{\{#t:|$)/g;
 	colored_text = colored_text.replace(templates,
@@ -230,7 +227,7 @@
 
 	// Need Wikipedia parser to do some work, too.
 	var wpurl = 'http://' + lang + getPrefStr('wpApiUrl', default_WpURL);
-	var params = '&action=parse&format=json'
+	var params = 'action=parse&format=json'
 		+ '&title=' + encodeURIComponent(title)
 		+ '&text='  + encodeURIComponent(colored_text);
 	http_post(wpurl, params,
@@ -256,10 +253,17 @@
 		// And eliminate any remaining trust tags
 		colored_text = colored_text.replace(/\{\{#t:\d+,\d+,[^}]+\}\}/g, '');
 
+		// Final step: share our data with original server
+		var url = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
+		url += 'RemoteAPI';
+		var params = 'method=sharehtml&revid=' + encodeURIComponent(revid)
+			+ '&myhtml='  + encodeURIComponent(colored_text);
+		http_post(url, params, function(req) {}, function(req) {});
 		return continuation(colored_text);
 	    },
 	    failureFunc('Unable to reach Wikipedia API', 'ErrWpAPI')
 	    );
+	} catch (x) { log('color_Wiki2Html: ' + x); }
     }
 
     function fixHrefs(node) {
@@ -486,8 +490,13 @@ if (FEATURE_VOTING) {
 	if (!/[?&]trust\b/.test(page.location.search)) return;
 	var lang = getWikiLang(page.location);
 	addTrustHeaders(page);
-	var wtURL = getWikiTrustURL(page);
-	if (!wtURL) return;
+	var wikiParams = getWikiParams(page);
+	if (!wikiParams) return;
+	var wtURL = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
+	wtURL += 'RemoteAPI?method=wikiorhtml'
+	    + '&title=' + encodeURIComponent(wikiParams[0])
+	    + '&pageid=' + wikiParams[1]
+	    + '&revid=' + wikiParams[2];
 	tab.setAttribute('class', 'selected');
 	var addedNodes = new Array();
 	addedNodes.push(darkenPage(page));
@@ -495,13 +504,44 @@ if (FEATURE_VOTING) {
 	log("Requesting trust url = " + wtURL);
 	var failureFunc = function (logmsg, msg) {
 	    return function (req) {
-		if (req) log(logmsg+", status = " + req.status);
+	      try {
+		log(logmsg);
+		if (req) log('status = ' + req.status);
 		removeExtras(addedNodes);
 		var bodyContent = page.getElementById('bodyContent');
 		var box = getBoxedMsg(page, lang, msg);
 		if (bodyContent && box) bodyContent.insertBefore(box, bodyContent.firstChild);
+	      } catch (x) { log('failureFunc: ' + x); }
 	    };
 	}
+	var displayFunc = function(txt) {
+	  if (!txt)
+	      return (failureFunc('No color info', 'ErrWpAPI'))(null);
+
+	  removeExtras(addedNodes);
+	  var trustDiv = page.createElement('div');
+	  trustDiv.setAttribute('id', 'trust-div');
+
+	  var bodyContent = page.getElementById('bodyContent');
+	  var siteSub = page.getElementById('siteSub');
+	  var contentSub = page.getElementById('contentSub');
+	  var catlinks = page.getElementById('catlinks');
+	  bodyContent.innerHTML = '';
+	  bodyContent.appendChild(siteSub);
+	  bodyContent.appendChild(contentSub);
+	  bodyContent.appendChild(trustDiv);
+	  if (catlinks) bodyContent.appendChild(catlinks);
+	  trustDiv.innerHTML = txt;
+	  fixHrefs(bodyContent);
+	  var expl = getBoxedMsg(page, lang, 'success');
+	  if (expl) bodyContent.insertBefore(expl, bodyContent.firstChild);
+	  var coords = page.getElementById('coordinates');
+	  if (coords) coords.style.cssText = 'top: -20px !important';
+if (FEATURE_VOTING) {
+	  var voteButton = page.getElementById('wt-vote-button');
+	  addVotingHandler(page, voteButton);
+}
+	};
 	http_get(wtURL, function (req) {
 		log("http_get: "+wtURL);
 		log("trust page downloaded successfully.");
@@ -509,9 +549,10 @@ if (FEATURE_VOTING) {
 		    return (failureFunc('Empty response', 'ErrBadTrust'))(req);
 		try {
 		    var responseType = req.responseText.substr(0,1);
+		    if (responseType == 'H')
+			return displayFunc(req.responseText.substr(1));
 		    if (responseType != 'W') {
-			// Should be one of 'W' or 'H', but we only
-			// handle 'W' for now
+			// Should be one of 'W' or 'H'
 			log(req.responseText);
 			return (failureFunc('Invalid response', 'ErrBadTrust'))(req);
 		    }
@@ -530,34 +571,7 @@ if (FEATURE_VOTING) {
 		    addedNodes.push(darkenPage(page));
 		    addedNodes.push(showDialog(page, getMsg(lang, 'downloadhtml'), 300,100));
 
-		    color_Wiki2Html(lang, title, medianTrust, colored_text, function(txt) {
-			if (!txt)
-			    return (failureFunc('No color info', 'ErrWpAPI'))(req);
-
-			removeExtras(addedNodes);
-			var trustDiv = page.createElement('div');
-			trustDiv.setAttribute('id', 'trust-div');
-
-			var bodyContent = page.getElementById('bodyContent');
-			var siteSub = page.getElementById('siteSub');
-			var contentSub = page.getElementById('contentSub');
-			var catlinks = page.getElementById('catlinks');
-			bodyContent.innerHTML = '';
-			bodyContent.appendChild(siteSub);
-			bodyContent.appendChild(contentSub);
-			bodyContent.appendChild(trustDiv);
-			if (catlinks) bodyContent.appendChild(catlinks);
-			trustDiv.innerHTML = txt;
-			fixHrefs(bodyContent);
-			var expl = getBoxedMsg(page, lang, 'success');
-			if (expl) bodyContent.insertBefore(expl, bodyContent.firstChild);
-			var coords = page.getElementById('coordinates');
-			if (coords) coords.style.cssText = 'top: -20px !important';
-if (FEATURE_VOTING) {
-			var voteButton = page.getElementById('wt-vote-button');
-			addVotingHandler(page, voteButton);
-}
-		    }, failureFunc);
+		    color_Wiki2Html(lang, title, wikiParams[2], medianTrust, colored_text, displayFunc, failureFunc);
 		} catch(x) { log('maybeColorPage: '+x); }
 	    }, failureFunc('No response from server', 'ErrBadTrust'));
     }
