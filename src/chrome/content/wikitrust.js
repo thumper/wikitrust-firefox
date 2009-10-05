@@ -15,7 +15,7 @@
 			+ '<tr><td>There was an error while contacting UCSC for the trust content.</td></tr></table>',
 			ErrNoTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
 			+ '<tr><td>There is no trust coloring information currently available for the revision you requested.  '
-			+ 'Please try again in 5 minutes, when the coloring should be complete.</td></tr></table>'
+			+ 'Please try again in about a minute, when the coloring should be complete.</td></tr></table>'
 		 },
 		it: { tabhover: 'NEED TRANSLATION',
 			tabtext: 'trust me' },
