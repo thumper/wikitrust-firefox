@@ -246,6 +246,7 @@
 		+ '&text='  + encodeURIComponent(colored_text);
 	http_post(wpurl, params,
 	    function(req) {
+	      try {
 		var json = eval('('+req.responseText+')');
 		var colored_text = json.parse.text['*'];
 		json = undefined;
@@ -274,6 +275,10 @@
 			+ '&myhtml='  + encodeURIComponent(colored_text);
 		http_post(url, params, function(req) {}, function(req) {});
 		return continuation(colored_text);
+	      } catch (x) {
+		log('color_Wiki2HTML: ' + x);
+		return (failureFunc('Error processing WpAPI response', 'ErrWpAPI'))(null)
+	      }
 	    },
 	    failureFunc('Unable to reach Wikipedia API', 'ErrWpAPI')
 	    );
