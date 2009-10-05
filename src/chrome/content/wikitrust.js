@@ -1,7 +1,8 @@
 // Copyright 2009, B. Thomas Adler
 
 (function() {
-  const langmsgs = { en: { success: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+  const langmsgs = {
+	en: { success: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
 			+ '<tr><td>The article text is colored according to how much it has been revised.  An orange background indicates new, unrevised, text;  white is for text that has been revised by many reputed authors.  If you click on a word, you will be redirected to the diff corresponding to the edit where the word was introduced.</td></tr>'
 			+ '<tr><td>The text color and origin are computed by <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>; if you notice problems, you can submit a bug report <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">here</a>.</td></tr>'
 			+ '</table>',
@@ -17,8 +18,21 @@
 			+ '<tr><td>There is no trust coloring information currently available for the revision you requested.  '
 			+ 'Please try again in about a minute, when the coloring should be complete.</td></tr></table>'
 		 },
-		it: { tabhover: 'NEED TRANSLATION',
-			tabtext: 'trust me' },
+	it: { success: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ "<tr><td>Il testo dell'articolo è colorato in base a quanto è stato rivisto. Uno sfondo arancione indica che il nuovo testo, non rivisti,; bianco è per il testo che è stato rivisto da molti autori di fama. Se si fa clic su una parola, sarete reindirizzati alla diff corrispondente al montaggio in cui la parola è stata introdotta.</td></tr>"
+			+ '<tr><td>Il colore del testo e l\'origine sono calcolate da <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>, in caso di problemi, potete presentare un bug report <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">qui</a>.</td></tr>'
+			+ '</table>',
+			tabhover:  'Trust versione colorata di questa pagina',
+			tabtext: 'fiducia info',
+			downloadtrust: '<p>Il download delle informazioni fiducia da UCSC...</p>',
+			downloadhtml: '<p>Richiedente HTML da Wikipedia...</p>',
+			ErrWpAPI: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>Si è verificato un errore durante il contatto con Wikipedia per i contenuti HTML.</td></tr></table>',
+			ErrBadTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>Si è verificato un errore durante contattando UCSC per il contenuto di fiducia.</td></tr></table>',
+			ErrNoTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ "<tr><td>Non c'è fiducia colorazione delle informazioni attualmente disponibili per la revisione richiesta. Please try again in circa un minuto, quando la colorazione dovrebbe essere completo.</td></tr></table>"
+		 },
 	};
 
     const domainname = '.wikipedia.org';
