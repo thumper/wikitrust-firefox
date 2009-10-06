@@ -221,8 +221,8 @@
 			    max(MIN_TRUST_VALUE,
 				(trust * TRUST_MULTIPLIER / medianTrust)
 			    ));
-		    var class = COLORS[Math.round(normalized_value)];
-		    var replace = '<span class="'+class+'" onclick="showOrigin('
+		    var classname = COLORS[Math.round(normalized_value)];
+		    var replace = '<span class="'+classname+'" onclick="showOrigin('
 			+ two + ')">'+preserve(four)+'</span>';
 		    return replace;
 		} catch (x) {
