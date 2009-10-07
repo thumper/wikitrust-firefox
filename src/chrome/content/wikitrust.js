@@ -7,8 +7,8 @@
 			+ '<tr><td>The text color and origin are computed by <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>; if you notice problems, you can submit a bug report <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">here</a>.</td></tr>'
 			+ '</table>',
 			tabhover:  'Trust colored version of this page',
-			tabtext: 'trust info',
-			downloadtrust: '<p>Downloading trust information from UCSC...</p>',
+			tabtext: 'WikiTrust',
+			downloadtrust: '<p>Downloading trust information from UC Santa Cruz...</p>',
 			downloadhtml: '<p>Requesting HTML from Wikipedia...</p>',
 			ErrWpAPI: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
 			+ '<tr><td>There was an error while contacting Wikipedia for HTML content.</td></tr></table>',
@@ -19,13 +19,12 @@
 			+ 'Please try again in about a minute, when the coloring should be complete.</td></tr></table>'
 		 },
 	it: { success: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
-			+ "<tr><td>Il testo dell'articolo è colorato in base a quanto è stato rivisto. Uno sfondo arancione indica che il nuovo testo, non rivisti,; bianco è per il testo che è stato rivisto da molti autori di fama. Se si fa clic su una parola, sarete reindirizzati alla diff corrispondente al montaggio in cui la parola è stata introdotta.</td></tr>"
-			+ '<tr><td>Il colore del testo e l\'origine sono calcolate da <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>, in caso di problemi, potete presentare un bug report <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">qui</a>.</td></tr>'
+			+ "<tr><td>Il testo dell'articolo è colorato in base a quanto è stato rivisto.  Uno sfondo arancione indica che il testo è nuovo, e non rivisto; bianco è per il testo che è stato rivisto da molti autori di fama.  Se si fa clic su una parola, sarete inviati ad una pagina che mostra la modifica apportata alla voce quando la parola è stata introdotta.</td></tr>"
+			+ '<tr><td>Il colore del testo, e l\'origine delle parole, sono calcolate da <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>.  In caso di problemi, potete inviare un resoconto <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">qui</a>.</td></tr>'
 			+ '</table>',
 			tabhover:  'Trust versione colorata di questa pagina',
-			tabtext: 'fiducia info',
-			downloadtrust: '<p>Il download delle informazioni fiducia da UCSC...</p>',
-			downloadhtml: '<p>Richiedente HTML da Wikipedia...</p>',
+			downloadtrust: '<p>Il download delle informazioni fiducia da UC Santa Cruz...</p>',
+			downloadhtml: "<p>Trasferimento dell'informazione da Wikipedia in corso...</p><p>(Downloading information from Wikipedia is in progress...)</p>",
 			ErrWpAPI: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
 			+ '<tr><td>Si è verificato un errore durante il contatto con Wikipedia per i contenuti HTML.</td></tr></table>',
 			ErrBadTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
