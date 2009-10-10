@@ -518,7 +518,7 @@ if (FEATURE_VOTING) {
 	tab.setAttribute('class', 'selected');
 	var addedNodes = new Array();
 	addedNodes.push(darkenPage(page));
-	addedNodes.push(showDialog(page, getMsg(lang, 'downloadtrust'), 300,100));
+	addedNodes.push(showDialog(page, getMsg(lang, 'downloadtrust'), 450,150));
 	log("Requesting trust url = " + wtURL);
 	var failureFunc = function (logmsg, msg) {
 	    return function (req) {
@@ -587,7 +587,7 @@ if (FEATURE_VOTING) {
 		    var title = getTitleFUrl(page.location);
 		    removeExtras(addedNodes);
 		    addedNodes.push(darkenPage(page));
-		    addedNodes.push(showDialog(page, getMsg(lang, 'downloadhtml'), 300,100));
+		    addedNodes.push(showDialog(page, getMsg(lang, 'downloadhtml'), 450,150));
 
 		    color_Wiki2Html(lang, title, wikiParams[2], medianTrust, colored_text, displayFunc, failureFunc);
 		} catch(x) { log('maybeColorPage: '+x); }
