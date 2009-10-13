@@ -233,7 +233,7 @@
 
       try {
 	// First, clean tags around links
-	var templates = /\{\{#t:(\d+),(\d+),([^}]+)\}\}\s*\[\[([^\]]+)\]\]\*(?=\{\{#t:|$)/g;
+	var templates = /\{\{#t:(\d+),(\d+),([^}]+)\}\}\s*\[\[([^\]]+)\]\]\s*(?=\{\{#t:|$)/g;
 	colored_text = colored_text.replace(templates,
 	    genericHandler(function(txt) { return '[['+txt+']]'; })
 	);
