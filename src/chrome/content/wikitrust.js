@@ -47,6 +47,7 @@
     const default_WpURL = '.wikipedia.org/w/api.php'; // wikipedia
     const prefService = Components.classes["@mozilla.org/preferences-service;1"].
 		getService(Components.interfaces.nsIPrefBranch);
+    var enabledWikis = { };
 
     function getPrefBool(pref, defval) {
 	var prefname = "extensions.wikitrust." + pref;
@@ -132,8 +133,33 @@
     }
 
     function isEnabledWiki(lang) {
-	if (lang in langmsgs) return true;
-	return false;
+	if (!lang) return false;
+	var result = (lang in langmsgs);
+	var now = new Date().getTime();
+	if (lang in enabledWikis)
+	    result = enabledWikis[lang]['enabled'];
+	else {
+	    enabledWikis[lang] = {
+		    lastcheck: (now - 10000),
+		    enabled: result,
+		};
+	}
+	    
+	var enabled = enabledWikis[lang];
+	if ((now-enabled['lastcheck'])>3600) {
+	    enabled['lastcheck'] = now;
+	    var wtURL = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
+	    wtURL += 'RemoteAPI?method=miccheck';
+	    http_get(wtURL, function (req) {
+		    if (req.responseText == 'OK')
+			enabled['enabled'] = true;
+		    else
+			enabled['enabled'] = false;
+		}, function (req) {
+		    enabled['enabled'] = false;
+		});
+	}
+	return result;
     }
 
     function getMsg(lang, msg) {
