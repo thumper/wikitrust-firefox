@@ -32,6 +32,7 @@
 			ErrNoTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
 			+ '<tr><td>L\'informazione sull\'affidabilità di questa revisione non è ancora stata calcolata.  Riprovate tra qualche decina di secondi: il sistema <a href="http://wikitrust.soe.ucsc.edu" class="external text" rel="nofollow">WikiTrust</a> sta calcolando l\'informazione per voi.</td></tr></table>'
 		 },
+	pt: { },
 	};
 
     const domainname = '.wikipedia.org';
@@ -178,9 +179,10 @@
 	var title = getQueryVariable(loc.search, 'title');
 	if (title != '') return title;
 	var match = /^\/wiki\/(.*)$/.exec(loc.pathname);
-	if (match[1] != '') return unescape(match[1]);
+	// unescape() doesn't decode utf8.  Use decodeURIComponent().
+	if (match[1] != '') return decodeURIComponent(match[1]);
 	match = /^\/w\/index\.php\/(.*)$/.exec(loc.pathname);
-	if (match[1] != '') return unescape(match[1]);
+	if (match[1] != '') return decodeURIComponent(match[1]);
 	
 	return null;
     }
