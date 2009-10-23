@@ -19,9 +19,10 @@
 			+ 'Please try again in about a minute, when the coloring should be complete.</td></tr></table>'
 		 },
 	it: { success: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
-			+ "<tr><td>Il testo dell'articolo è colorato in base a quanto è stato rivisto.  Uno sfondo arancione indica che il testo è nuovo, e non rivisto; bianco è per il testo che è stato rivisto da molti autori di fama.  Se si fa clic su una parola, sarete inviati ad una pagina che mostra la modifica apportata alla voce quando la parola è stata introdotta.</td></tr>"
+			+ "<tr><td>Il testo dell'articolo è colorato in base a quanto è stato rivisto.  Uno sfondo arancione indica che il testo è nuovo, e non rivisto; bianco è per il testo che è stato rivisto da molti autori.  Se si fa clic su una parola, sarete inviati ad una pagina che mostra la modifica apportata alla voce quando la parola è stata introdotta.</td></tr>"
 			+ '<tr><td>Il colore del testo, e l\'origine delle parole, sono calcolate da <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>.  In caso di problemi, potete inviare un resoconto <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">qui</a>.</td></tr>'
 			+ '</table>',
+			//tabtext: 'stabilità testo',
 			tabhover:  'Trust versione colorata di questa pagina',
 			downloadtrust: "<p>Lo scaricamento dell'informazione sull'affidabilità del testo è in corso da UC Santa Cruz...</p><p>(Downloading the trust information from UC Santa Cruz...)</p>",
 			downloadhtml: "<p>Trasferimento dell'informazione da Wikipedia in corso...</p><p>(Downloading information from Wikipedia is in progress...)</p>",
