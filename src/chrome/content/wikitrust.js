@@ -307,6 +307,11 @@
 	colored_text = colored_text.replace(templates,
 	    genericHandler(function(txt) { return '[['+txt+']]'; })
 	);
+	// And also clean tags after a semi-colon
+	var semicolons = /^;\s*\{\{#t:(\d+),(\d+),([^}]+)\}\}(\s*[^\{<]*?)(?=\{|<|$)/mg;
+	colored_text = colored_text.replace(semicolons,
+	    genericHandler(function(txt) { return txt; })
+	);
 
 	// Need Wikipedia parser to do some work, too.
 	var wpurl = 'http://' + lang + getPrefStr('wpApiUrl', default_WpURL);
