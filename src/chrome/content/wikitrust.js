@@ -29,9 +29,9 @@
 			ErrWpAPI: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
 			+ '<tr><td>Si è verificato un errore durante il contatto con Wikipedia per i contenuti HTML.</td></tr></table>',
 			ErrBadTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
-			+ '<tr><td>Si è verificato un errore durante contattando UCSC per il contenuto di fiducia.</td></tr></table>',
+			+ '<tr><td>Si è verificato un errore contattando i servers a UC Santa Cruz.</td></tr></table>',
 			ErrNoTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
-			+ '<tr><td>L\'informazione sull\'affidabilità di questa revisione non è ancora stata calcolata.  Riprovate tra qualche decina di secondi: il sistema <a href="http://wikitrust.soe.ucsc.edu" class="external text" rel="nofollow">WikiTrust</a> sta calcolando l\'informazione per voi.</td></tr></table>'
+			+ '<tr><td>L\'informazione su questa revisione non è ancora stata calcolata.  Riprovate tra qualche decina di secondi: il sistema <a href="http://wikitrust.soe.ucsc.edu" class="external text" rel="nofollow">WikiTrust</a> sta calcolando l\'informazione per voi.</td></tr></table>'
 		 },
 	pt: { },
 	};
@@ -52,9 +52,9 @@
     var enabledWikis = { };
 
     function getPrefBool(pref, defval) {
-	var prefname = "extensions.wikitrust." + pref;
+	var value, prefname = "extensions.wikitrust." + pref;
 	try {
-	    var value = prefService.getBoolPref(prefname);
+	    value = prefService.getBoolPref(prefname);
 	    return value;
 	} catch (ex) {
 	    prefService.setBoolPref(prefname, defval);
@@ -63,9 +63,9 @@
     }
 
     function getPrefStr(pref, defval) {
-	var prefname = "extensions.wikitrust." + pref;
+	var value, prefname = "extensions.wikitrust." + pref;
 	try {
-	    var value = prefService.getCharPref(prefname);
+	    value = prefService.getCharPref(prefname);
 	    return value;
 	} catch (ex) {
 	    return defval;
@@ -80,6 +80,46 @@
 	aConsoleService.logStringMessage("wikitrust: "
 		+ now.getTime() + ": " + str);
     }
+
+    function getJsonNativeParser() {
+	return JSON.parse;
+    }
+
+    function getJsonNsiParser() {
+	var JSON = Components.classes["@mozilla.org/dom/json;1"].
+	    createInstance(Components.interfaces.nsIJSON);
+	return function(str) {
+		return JSON.decode(str);
+	    };
+    }
+
+    function getJsonParser() {
+	var p, getter, parser, jobj,
+	    jstr = '{"bar":"foo", "baz":3}',
+	    parsers = { 'native': getJsonNativeParser,
+			'nsi': getJsonNsiParser };
+	for (p in parsers) {
+	    log('JSON: trying parser '+p);
+	    try {
+		getter = parsers[p];
+		parser = getter();
+		log('JSON: attempting to parse');
+		jobj = parser(jstr);
+		if (!jobj) {
+		    log('JSON: jobj was null?!?');
+		    throw 'null obj';
+		}
+		log('JSON: parser worked!');
+		return parser;
+	    } catch (x) {
+		log('JSON: parser failed: '+x);
+	    }
+	}
+	log('JSON: complete failure!');
+	return null;
+    }
+
+    var JsonParser = getJsonParser();
 
     function http_get(path, success, failure) {
 	if (!path) return failure(null);
@@ -114,10 +154,11 @@
     }
 
     function getQueryVariable(search, varname) {
-	var query = search.substring(1);
-	var vars = query.split('&');
-	for (var i = 0; i < vars.length; i++) {
-	    var pair = vars[i].split('=');
+	var i, pair,
+	    query = search.substring(1),
+	    vars = query.split('&');
+	for (i = 0; i < vars.length; i++) {
+	    pair = vars[i].split('=');
 	    if (pair[0] == varname)
 		return pair[1];
 	}
@@ -136,8 +177,8 @@
 
     function isEnabledWiki(lang) {
 	if (!lang) return false;
-	var result = (lang in langmsgs);
-	var now = new Date().getTime();
+	var result = (lang in langmsgs),
+	    now = new Date().getTime();
 	if (lang in enabledWikis)
 	    result = enabledWikis[lang]['enabled'];
 	else {
@@ -189,8 +230,8 @@
     }
 
     function getWikiParams(page) {
-	var loc = page.location;
-	var lang = getWikiLang(loc);
+	var loc = page.location,
+	    lang = getWikiLang(loc);
 	if (!isEnabledWiki(lang)) return null;
 	if (/&diff=/.test(loc.search)) return null;
 	if (/&action=/.test(loc.search)) return null;
@@ -275,8 +316,8 @@
 	http_post(wpurl, params,
 	    function(req) {
 	      try {
-		var json = eval('('+req.responseText+')');
-		var colored_text = json.parse.text['*'];
+		var json = JsonParser(req.responseText),
+		    colored_text = json.parse.text['*'];
 		json = undefined;
 
 		// Fix edit section links
@@ -555,8 +596,8 @@ if (FEATURE_VOTING) {
 		log(logmsg);
 		if (req) log('status = ' + req.status);
 		removeExtras(addedNodes);
-		var bodyContent = page.getElementById('bodyContent');
-		var box = getBoxedMsg(page, lang, msg);
+		var bodyContent = page.getElementById('bodyContent'),
+		    box = getBoxedMsg(page, lang, msg);
 		if (bodyContent && box) bodyContent.insertBefore(box, bodyContent.firstChild);
 	      } catch (x) { log('failureFunc: ' + x); }
 	    };
@@ -569,10 +610,10 @@ if (FEATURE_VOTING) {
 	  var trustDiv = page.createElement('div');
 	  trustDiv.setAttribute('id', 'trust-div');
 
-	  var bodyContent = page.getElementById('bodyContent');
-	  var siteSub = page.getElementById('siteSub');
-	  var contentSub = page.getElementById('contentSub');
-	  var catlinks = page.getElementById('catlinks');
+	  var bodyContent = page.getElementById('bodyContent'),
+	      siteSub = page.getElementById('siteSub'),
+	      contentSub = page.getElementById('contentSub'),
+	      catlinks = page.getElementById('catlinks');
 	  bodyContent.innerHTML = '';
 	  bodyContent.appendChild(siteSub);
 	  bodyContent.appendChild(contentSub);
@@ -611,9 +652,9 @@ if (FEATURE_VOTING) {
 			log(req.responseText);
 			return (failureFunc('No comma', 'ErrBadTrust'))(req);
 		    }
-		    var medianTrust = parseFloat(req.responseText.substr(1, comma-1));
-		    var colored_text = req.responseText.substr(comma+1);
-		    var title = getTitleFUrl(page.location);
+		    var medianTrust = parseFloat(req.responseText.substr(1, comma-1)),
+			colored_text = req.responseText.substr(comma+1),
+			title = getTitleFUrl(page.location);
 		    removeExtras(addedNodes);
 		    addedNodes.push(darkenPage(page));
 		    addedNodes.push(showDialog(page, getMsg(lang, 'downloadhtml'), 450,150));
@@ -627,14 +668,14 @@ if (FEATURE_VOTING) {
 	document.getElementById("appcontent").addEventListener(
 		"DOMContentLoaded",
 	    function(ev) {
-		var page = ev.originalTarget;
+		var tab, page = ev.originalTarget;
 		if (page.nodeName != "#document") return;
 		if (!page.location) return;
 
 		log("DOMContentLoaded event for loc="+page.location);
 
 		try {
-		    var tab = maybeAddTrustTab(page);
+		    tab = maybeAddTrustTab(page);
 		    maybeColorPage(page, tab);
 		} catch (e) {
 		    log(e);
