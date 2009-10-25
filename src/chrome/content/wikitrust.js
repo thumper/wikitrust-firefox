@@ -326,10 +326,10 @@
 		json = undefined;
 
 		// Fix edit section links
-		colored_text = colored_text.replace(/<span class="editsection">(.*?) title="(.*?)">/g,
-		    function (match, one, two) {
-			two = two.replace(/\{\{#t:\d+,\d+,[^}]+\}\}/g, '');
-			return '<span class="editsection">'+one+' title="'+two+'">';
+		colored_text = colored_text.replace(/<span class="editsection"([^>]*)>(.*?) title="(.*?)">/g,
+		    function (match, one, two, three) {
+			three = three.replace(/\{\{#t:\d+,\d+,[^}]+\}\}/g, '');
+			return '<span class="editsection"'+one+'>'+two+' title="'+three+'">';
 		    }
 		);
 
