@@ -34,6 +34,36 @@
 			+ '<tr><td>L\'informazione su questa revisione non è ancora stata calcolata.  Riprovate tra qualche decina di secondi: il sistema <a href="http://wikitrust.soe.ucsc.edu" class="external text" rel="nofollow">WikiTrust</a> sta calcolando l\'informazione per voi.</td></tr></table>'
 		 },
 	pt: { },
+	pl: { success: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>Tekst w artykule został pokolorowany w zależności od tego jak często był przeglądany w wyniku edytowania artykułu. Pomarańczowe tło oznacza nowy, nieprzejrzany tekst; natomiast białe tło oznacza tekst, który był wielokrotnie przeglądany przez zaufanych edytorów artykułu.  Jeśli klikniesz na wyraz, to zobaczysz edycję, podczas której ten wyraz został dodany.</td></tr>'
+			+ '<tr><td>Tło tekstu oraz informacja o źródłowej edycji wyrazu zostały wygenerowane przez <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>. Jeśli dostrzeżesz jakieś problemy, możesz zgłosić raport o błędzie <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">pod tym linkiem</a>.</td></tr>'
+			+ '</table>',
+			tabhover:  'Sprawdź wiarygodność tej strony za pomocą pokolorowanej wersji',
+			tabtext: 'WikiTrust',
+			downloadtrust: '<p>Pobieranie przeanalizowanego tekst z UC Santa Cruz...</p>',
+			downloadhtml: '<p>Żądanie zawartości HTML z Wikipedii...</p>',
+			ErrWpAPI: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>Wystąpił błąd podczas pobierania zawartości HTML z Wikipedii.</td></tr></table>',
+			ErrBadTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>Wystąpił błąd podczas pobierania przeanalizowanej treści z UCSC.</td></tr></table>',
+			ErrNoTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>Sprawdzenie wiarygodności tej wersji za pomocą kolorowania jest chwilowo niemożliwe. Spróbuj ponownie za około minutę, kiedy kolorowanie powinno zostać zakończone.</td></tr></table>'
+		 },
+	de: { success: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>Die farbliche Markierung des Artikeltextes zeigt, wie viel bereits überprüft wurde: Orange Markierung steht für neuen, noch nicht überprüften Text; weiße Markierung steht für Text, der von verschiedenen Autoren durchgesehen wurde. Wenn Du auf ein Wort klickst, wirst Du zum Diff geleitet, der auf diejenige Version zurückgreift, in der das entsprechende Wort eingefügt wurde.</td></tr>'
+			+ '<tr><td>Die Textfarbe und der Textursprung können mit folgenden Befehlen bestimmt werden: <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>; bei Problemen kannst Du auch einen Fehlerbericht erstellen: <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">here</a>.</td></tr>'
+			+ '</table>',
+			tabhover:  'Dies ist eine Version, die den WikiTrust-Prozess durchlaufen hat',
+			tabtext: 'WikiTrust',
+			downloadtrust: '<p>Informationsdownload von UC Santa Cruz...</p>',
+			downloadhtml: '<p>Frage HTML bei der Wikipedia an...</p>',
+			ErrWpAPI: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>Ein Fehler tritt beim Verbindungsaufbau mit Wikipedia auf.</td></tr></table>',
+			ErrBadTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>Ein Fehler tritt beim Verbindungsaufbau mit UCSC auf.</td></tr></table>',
+			ErrNoTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>Für die angefragte Überarbeitung ist zurzeit leider keine Textanalyseinformation verfügbar. Bitte versuche es in zirka 30 Sekunden noch einmal. Die Analyse sollte dann beendet sein.</td></tr></table>'
+		 },
 	};
 
     const domainname = '.wikipedia.org';
