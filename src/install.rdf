@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>wikitrust@soe.ucsc.edu</em:id>
-    <em:version>0.4.9</em:version>
+    <em:version>0.4.10</em:version>
     <em:type>2</em:type>
    
     <!-- Target Application this extension can install into, 
@@ -15,7 +15,7 @@
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <em:minVersion>3.0</em:minVersion>
-        <em:maxVersion>3.6.*</em:maxVersion>
+        <em:maxVersion>3.7.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
@@ -24,7 +24,7 @@
     <em:name>WikiTrust</em:name>
     <em:description>Add a "trust tab" to Wikipedia, for easy access to the UC Santa Cruz WikiTrust data.</em:description>
     <em:iconURL>chrome://wikitrust/content/wt-logo.png</em:iconURL>
-    <em:creator>B. Thomas Adler</em:creator>
-    <em:homepageURL>http://wikitrust.soe.ucsc.edu</em:homepageURL>
+    <em:creator>Bo Adler, Luca de Alfaro, Ian Pye</em:creator>
+    <em:homepageURL>http://www.wikitrust.net</em:homepageURL>
   </Description>      
 </RDF>
