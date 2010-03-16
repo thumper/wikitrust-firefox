@@ -1,4 +1,4 @@
-// Copyright 2009, B. Thomas Adler
+// Copyright 2009-2010, B. Thomas Adler
 
 (function() {
   const langmsgs = {
@@ -64,7 +64,24 @@
 			ErrNoTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
 			+ '<tr><td>Für die angefragte Überarbeitung ist zurzeit leider keine Textanalyseinformation verfügbar. Bitte versuche es in zirka 30 Sekunden noch einmal. Die Analyse sollte dann beendet sein.</td></tr></table>'
 		 },
+    fr: { success: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>Le texte est coloré en fonction de combien il a été révisé. Un fond orange signifie un texte neuf, non révisé, tandis qu\'un fond blanc signifie que le texte a été révisé par des auteurs réputés. Si vous cliquez sur un mot, vous serez envoyés à la révision qui a introduit ce mot.</td></tr>'
+			+ '<tr><td>La couleur du texte et l\'origine des mots sont calculés par <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>. Si vous notez un problème, vous pouvez le signaler <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">ici</a>.</td></tr>'
+			+ '</table>',
+			tabhover:  'Trust version colorée de cette page',
+			tabtext: 'WikiTrust',
+			downloadtrust: '<p>Téléchargement d\'information de UC Santa Cruz en cours ...</p>',
+			downloadhtml: '<p>Demande d\'information de Wikipedia en cours ...</p>',
+			ErrWpAPI: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>Erreur de connexion à Wikipedia.</td></tr></table>',
+			ErrBadTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td> Erreur de connexion à UCSC.</td></tr></table>',
+			ErrNoTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>Wikitrust n\'a pas terminé de calculer l\'information relative à la révision choisie. '
+			+ 'Réessayez dans une minute.</td></tr></table>'
+		 },
 	};
+
 
     const domainname = '.wikipedia.org';
 
