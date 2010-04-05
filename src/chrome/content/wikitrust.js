@@ -16,7 +16,9 @@
 			+ '<tr><td>There was an error while contacting UCSC for the trust content.</td></tr></table>',
 			ErrNoTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
 			+ '<tr><td>There is no trust coloring information currently available for the revision you requested.  '
-			+ 'Please try again in about a minute, when the coloring should be complete.</td></tr></table>'
+			+ 'Please try again in about a minute, when the coloring should be complete.</td></tr></table>',
+			ErrMsg: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+			+ '<tr><td>MSG</td></tr></table>',
 		 },
 	it: { success: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
 			+ "<tr><td>Il testo dell'articolo è colorato in base a quanto è stato rivisto.  Uno sfondo arancione indica che il testo è nuovo, e non rivisto; bianco è per il testo che è stato rivisto da molti autori.  Se si fa clic su una parola, sarete inviati ad una pagina che mostra la modifica apportata alla voce quando la parola è stata introdotta.</td></tr>"
@@ -650,6 +652,8 @@ if (FEATURE_VOTING) {
 		removeExtras(addedNodes);
 		var bodyContent = page.getElementById('bodyContent'),
 		    box = getBoxedMsg(page, lang, msg);
+		if (msg == 'ErrMsg')
+		    box.innerHTML.replace('MSG', logmsg);
 		if (bodyContent && box) bodyContent.insertBefore(box, bodyContent.firstChild);
 	      } catch (x) { log('failureFunc: ' + x); }
 	    };
@@ -691,6 +695,10 @@ if (FEATURE_VOTING) {
 		    var responseType = req.responseText.substr(0,1);
 		    if (responseType == 'H')
 			return displayFunc(req.responseText.substr(1));
+		    if (responseType == 'E') {
+			var msg = req.responseText.substr(1);
+			return (failureFunc(msg, 'ErrBadTrust'))(req);
+		    }
 		    if (responseType != 'W') {
 			// Should be one of 'W' or 'H'
 			log(req.responseText);
