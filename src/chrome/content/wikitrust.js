@@ -653,7 +653,7 @@ if (FEATURE_VOTING) {
 		var bodyContent = page.getElementById('bodyContent'),
 		    box = getBoxedMsg(page, lang, msg);
 		if (msg == 'ErrMsg')
-		    box.innerHTML.replace('MSG', logmsg);
+		    box.innerHTML = box.innerHTML.replace('MSG', logmsg);
 		if (bodyContent && box) bodyContent.insertBefore(box, bodyContent.firstChild);
 	      } catch (x) { log('failureFunc: ' + x); }
 	    };
@@ -697,7 +697,7 @@ if (FEATURE_VOTING) {
 			return displayFunc(req.responseText.substr(1));
 		    if (responseType == 'E') {
 			var msg = req.responseText.substr(1);
-			return (failureFunc(msg, 'ErrBadTrust'))(req);
+			return (failureFunc(msg, 'ErrMsg'))(req);
 		    }
 		    if (responseType != 'W') {
 			// Should be one of 'W' or 'H'
