@@ -271,10 +271,9 @@
 	if (title != '') return title;
 	var match = /^\/wiki\/(.*)$/.exec(loc.pathname);
 	// unescape() doesn't decode utf8.  Use decodeURIComponent().
-	if (match[1] != '') return decodeURIComponent(match[1]);
+	if (match && match[1] != '') return decodeURIComponent(match[1]);
 	match = /^\/w\/index\.php\/(.*)$/.exec(loc.pathname);
-	if (match[1] != '') return decodeURIComponent(match[1]);
-	
+	if (match && match[1] != '') return decodeURIComponent(match[1]);
 	return null;
     }
 
