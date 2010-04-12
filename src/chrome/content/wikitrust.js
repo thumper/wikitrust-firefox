@@ -289,6 +289,8 @@
 	var title = getTitleFUrl(loc);
 	var wgArticleId = '';
 	var revID = getQueryVariable(loc.search, 'oldid');
+	var dir = getQueryVariable(loc.search, 'direction');
+	if (dir != '') revID =  '';
 	if (revID == '') revID = getQueryVariable(loc.search, 'diff');
 	try {
 	    var safeWin = page.defaultView;
