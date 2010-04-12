@@ -7,7 +7,7 @@
 			+ '<tr><td>The text color and origin are computed by <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>; if you notice problems, you can submit a bug report <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">here</a>.</td></tr>'
 			+ '</table>',
 			tabhover:  'Trust colored version of this page',
-			tabtext: 'WikiTrust',
+			tabtext: 'wikitrust',
 			downloadtrust: '<p>Downloading trust information from UC Santa Cruz...</p>',
 			downloadhtml: '<p>Requesting HTML from Wikipedia...</p>',
 			ErrWpAPI: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
@@ -36,6 +36,9 @@
 			+ '<tr><td>L\'informazione su questa revisione non è ancora stata calcolata.  Riprovate tra qualche decina di secondi: il sistema <a href="http://wikitrust.soe.ucsc.edu" class="external text" rel="nofollow">WikiTrust</a> sta calcolando l\'informazione per voi.</td></tr></table>'
 		 },
 	pt: { },
+	no: {
+	    tabtext: 'wikitruth',
+	},
 	pl: { success: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
 			+ '<tr><td>Tekst w artykule został pokolorowany w zależności od tego jak często był przeglądany w wyniku edytowania artykułu. Pomarańczowe tło oznacza nowy, nieprzejrzany tekst; natomiast białe tło oznacza tekst, który był wielokrotnie przeglądany przez zaufanych edytorów artykułu.  Jeśli klikniesz na wyraz, to zobaczysz edycję, podczas której ten wyraz został dodany.</td></tr>'
 			+ '<tr><td>Tło tekstu oraz informacja o źródłowej edycji wyrazu zostały wygenerowane przez <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>. Jeśli dostrzeżesz jakieś problemy, możesz zgłosić raport o błędzie <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">pod tym linkiem</a>.</td></tr>'
