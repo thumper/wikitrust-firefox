@@ -335,81 +335,81 @@
     }
 
     function color_Wiki2Html(lang, title, revid, medianTrust, colored_text, continuation, failureFunc) {
-	var genericHandler = function (preserve) {
-	    return function (match, one, two, three, four) {
-		try {
-		    var trust = parseFloat(one) + 0.5;
-		    var normalized_value = min(MAX_TRUST_VALUE,
-			    max(MIN_TRUST_VALUE,
-				(trust * TRUST_MULTIPLIER / medianTrust)
-			    ));
-		    var classname = COLORS[Math.round(normalized_value)];
-		    var replace = '<span class="'+classname+'" onclick="showOrigin('
-			+ two + ')">'+preserve(four)+'</span>';
-		    return replace;
-		} catch (x) {
-		    log(x);
-		    return preserve(four);
-		}
-	    };
-	};
+      var genericHandler = function (match, trval, uid, username, txt) {
+	  try {
+	      var trust = parseFloat(trval) + 0.5;
+	      var normalized_value = min(MAX_TRUST_VALUE,
+		      max(MIN_TRUST_VALUE,
+			  (trust * TRUST_MULTIPLIER / medianTrust)
+		      ));
+	      var classname = COLORS[Math.round(normalized_value)];
+	      var replace = '<span class="'+classname+'" onclick="showOrigin('
+		  + uid + ')">'+txt+'</span>';
+	      return replace;
+	  } catch (x) {
+	      log(x);
+	      return txt;
+	  }
+      };
 
       try {
 	// First, clean tags around links
-	var templates = /\{\{#t:(\d+),(\d+),([^}]+)\}\}\s*\[\[([^\]]+)\]\]\s*(?=\{\{#t:|$)/g;
+	var templates = /\{\{#t:(\d+),(\d+),([^}]+)\}\}(\s*)\[\[([^\]]+)\]\](\s*)(?=\{\{#t:|$)/mg;
 	colored_text = colored_text.replace(templates,
-	    genericHandler(function(txt) { return '[['+txt+']]'; })
+	  function (match, p1, p2, p3, p4, p5, p6) {
+	    return p4 + genericHandler(match, p1, p2, p3, '[['+p5+']]') + p6;
+	  }
 	);
 	// And also clean tags after a semi-colon
-	var semicolons = /^;\s*\{\{#t:(\d+),(\d+),([^}]+)\}\}(\s*[^\{<]*?)(?=\{|<|$)/mg;
+	var semicolons = /^(;\s*)\{\{#t:(\d+),(\d+),([^}]+)\}\}(\s*[^\{<]*?)(?=\{|<|$)/mg;
 	colored_text = colored_text.replace(semicolons,
-	    genericHandler(function(txt) { return txt; })
+	  function (match, p1, p2, p3, p4, p5) {
+	    return p1 + genericHandler(match, p2, p3, p4, p5);
+	  }
 	);
 
 	// Need Wikipedia parser to do some work, too.
 	var wpurl = 'http://' + lang + getPrefStr('wpApiUrl', default_WpURL);
 	var params = 'action=parse&format=json'
-		+ '&title=' + encodeURIComponent(title)
-		+ '&text='  + encodeURIComponent(colored_text);
+	    + '&title=' + encodeURIComponent(title)
+	    + '&text='  + encodeURIComponent(colored_text);
 	http_post(wpurl, params,
-	    function(req) {
-	      try {
-		var json = JsonParser(req.responseText),
-		    colored_text = json.parse.text['*'];
-		json = undefined;
+	  function(req) {
+	    try {
+	      var json = JsonParser(req.responseText),
+		  colored_text = json.parse.text['*'];
+	      json = undefined;
 
-		// Fix edit section links
-		colored_text = colored_text.replace(/<span class="editsection"([^>]*)>(.*?) title="(.*?)">/g,
-		    function (match, one, two, three) {
-			three = three.replace(/\{\{#t:\d+,\d+,[^}]+\}\}/g, '');
-			return '<span class="editsection"'+one+'>'+two+' title="'+three+'">';
-		    }
-		);
+	      // Fix edit section links
+	      colored_text = colored_text.replace(/<span class="editsection"([^>]*)>(.*?) title="(.*?)">/g,
+		function (match, one, two, three) {
+		  three = three.replace(/\{\{#t:\d+,\d+,[^}]+\}\}/g, '');
+		  return '<span class="editsection"'+one+'>'+two+' title="'+three+'">';
+		}
+	      );
 
-		// Fix trust tags with plain text after
-		var plaintxt = /\{\{#t:(\d+),(\d+),([^}]+)\}\}([^\{<]*)(?=\{\{#t|<|$)/g;
-		colored_text = colored_text.replace(plaintxt,
-		    genericHandler(function(txt) { return txt; })
-		);
+	      // Fix trust tags with plain text after
+	      var plaintxt = /\{\{#t:(\d+),(\d+),([^}]+)\}\}([^\{<]*)(?=\{\{#t|<|$)/g;
+	      colored_text = colored_text.replace(plaintxt, genericHandler);
 
-		// And eliminate any remaining trust tags
-		colored_text = colored_text.replace(/\{\{#t:\d+,\d+,[^}]+\}\}/g, '');
+	      // And eliminate any remaining trust tags
+	      colored_text = colored_text.replace(/\{\{#t:\d+,\d+,[^}]+\}\}/g, '');
 
-		// Final step: share our data with original server
-		var url = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
-		url += 'RemoteAPI';
-		var params = 'method=sharehtml&revid=' + encodeURIComponent(revid)
-			+ '&myhtml='  + encodeURIComponent(colored_text);
-		http_post(url, params, function(req) {}, function(req) {});
-		return continuation(colored_text);
-	      } catch (x) {
-		log('color_Wiki2HTML: ' + x);
-		return (failureFunc('Error processing WpAPI response', 'ErrWpAPI'))(null)
-	      }
-	    },
+	      // Final step: share our data with original server
+	      var url = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
+	      url += 'RemoteAPI';
+	      var params = 'method=sharehtml&revid=' + encodeURIComponent(revid)
+		    + '&myhtml='  + encodeURIComponent(colored_text);
+	      http_post(url, params, function(req) {}, function(req) {});
+	      return continuation(colored_text);
+	    } catch (x) {
+	      log('color_Wiki2HTML: ' + x);
+	      return (failureFunc('Error processing WpAPI response', 'ErrWpAPI'))(null)
+	    }
+	  },
 	    failureFunc('Unable to reach Wikipedia API', 'ErrWpAPI')
-	    );
-	} catch (x) { log('color_Wiki2Html: ' + x); }
+	);
+      } catch (x) { log('color_Wiki2Html: ' + x); }
     }
 
     function fixHrefs(node) {
