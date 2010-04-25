@@ -88,6 +88,7 @@
 	};
 
 
+    const debug = true;		// to test new renderings
     const domainname = '.wikipedia.org';
 
     const FEATURE_TOOLTIP = false;
@@ -400,7 +401,10 @@
 	      url += 'RemoteAPI';
 	      var params = 'method=sharehtml&revid=' + encodeURIComponent(revid)
 		    + '&myhtml='  + encodeURIComponent(colored_text);
-	      http_post(url, params, function(req) {}, function(req) {});
+	      if (!debug) {
+		// don't share if we are debugging
+		http_post(url, params, function(req) {}, function(req) {});
+	      }
 	      return continuation(colored_text);
 	    } catch (x) {
 	      log('color_Wiki2HTML: ' + x);
@@ -643,6 +647,10 @@ if (FEATURE_VOTING) {
 	    + '&title=' + encodeURIComponent(wikiParams[0])
 	    + '&pageid=' + wikiParams[1]
 	    + '&revid=' + wikiParams[2];
+	if (debug) {
+	  // always get wiki version if we are debugging
+	  wtURL += '&debug=1';
+	}
 	tab.setAttribute('class', 'selected');
 	var addedNodes = new Array();
 	addedNodes.push(darkenPage(page));
