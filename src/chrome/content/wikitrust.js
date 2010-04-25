@@ -335,7 +335,7 @@
     }
 
     function color_Wiki2Html(lang, title, revid, medianTrust, colored_text, continuation, failureFunc) {
-      var genericHandler = function (match, trval, uid, username, txt) {
+      var genericHandler = function (match, trval, oid, username, txt) {
 	  try {
 	      var trust = parseFloat(trval) + 0.5;
 	      var normalized_value = min(MAX_TRUST_VALUE,
@@ -343,8 +343,8 @@
 			  (trust * TRUST_MULTIPLIER / medianTrust)
 		      ));
 	      var classname = COLORS[Math.round(normalized_value)];
-	      var replace = '<span class="'+classname+'" onclick="showOrigin('
-		  + uid + ')">'+txt+'</span>';
+	      var replace = '<span class="'+classname+'" onclick="return showOrigin(event,'
+		  + oid + ')">'+txt+'</span>';
 	      return replace;
 	  } catch (x) {
 	      log(x);
