@@ -3,7 +3,7 @@
 (function() {
   const langmsgs = {
 	en: { success: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
-			+ '<tr><td>The article text is colored according to how much it has been revised.  An orange background indicates new, unrevised, text;  white is for text that has been revised by many reputed authors.  If you click on a word, you will be redirected to the diff corresponding to the edit where the word was introduced.</td></tr>'
+			+ '<tr><td>The article text is colored according to how much it has been revised.  An orange background indicates new, unrevised, text;  white is for text that has been revised by many reputed authors.  If you CTRL-ALT-click on a word, you will be redirected to the diff corresponding to the edit where the word was introduced.</td></tr>'
 			+ '<tr><td>The text color and origin are computed by <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>; if you notice problems, you can submit a bug report <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">here</a>.</td></tr>'
 			+ '</table>',
 			tabhover:  'Trust colored version of this page',
@@ -21,7 +21,7 @@
 			+ '<tr><td>MSG</td></tr></table>',
 		 },
 	it: { success: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
-			+ "<tr><td>Il testo dell'articolo è colorato in base a quanto è stato rivisto.  Uno sfondo arancione indica che il testo è nuovo, e non rivisto; bianco è per il testo che è stato rivisto da molti autori.  Se si fa clic su una parola, sarete inviati ad una pagina che mostra la modifica apportata alla voce quando la parola è stata introdotta.</td></tr>"
+			+ "<tr><td>Il testo dell'articolo è colorato in base a quanto è stato rivisto.  Uno sfondo arancione indica che il testo è nuovo, e non rivisto; bianco è per il testo che è stato rivisto da molti autori.  Se si fa CTRL-ALT-clic su una parola, sarete inviati ad una pagina che mostra la modifica apportata alla voce quando la parola è stata introdotta.</td></tr>"
 			+ '<tr><td>Il colore del testo, e l\'origine delle parole, sono calcolate da <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>.  In caso di problemi, potete inviare un resoconto <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">qui</a>.</td></tr>'
 			+ '</table>',
 			//tabtext: 'stabilità testo',
@@ -40,7 +40,7 @@
 	    tabtext: 'wikitruth',
 	},
 	pl: { success: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
-			+ '<tr><td>Tekst w artykule został pokolorowany w zależności od tego jak często był przeglądany w wyniku edytowania artykułu. Pomarańczowe tło oznacza nowy, nieprzejrzany tekst; natomiast białe tło oznacza tekst, który był wielokrotnie przeglądany przez zaufanych edytorów artykułu.  Jeśli klikniesz na wyraz, to zobaczysz edycję, podczas której ten wyraz został dodany.</td></tr>'
+			+ '<tr><td>Tekst w artykule został pokolorowany w zależności od tego jak często był przeglądany w wyniku edytowania artykułu. Pomarańczowe tło oznacza nowy, nieprzejrzany tekst; natomiast białe tło oznacza tekst, który był wielokrotnie przeglądany przez zaufanych edytorów artykułu.  Jeśli CTRL-ALT-klikniesz na wyraz, to zobaczysz edycję, podczas której ten wyraz został dodany.</td></tr>'
 			+ '<tr><td>Tło tekstu oraz informacja o źródłowej edycji wyrazu zostały wygenerowane przez <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>. Jeśli dostrzeżesz jakieś problemy, możesz zgłosić raport o błędzie <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">pod tym linkiem</a>.</td></tr>'
 			+ '</table>',
 			tabhover:  'Sprawdź wiarygodność tej strony za pomocą pokolorowanej wersji',
@@ -55,7 +55,7 @@
 			+ '<tr><td>Sprawdzenie wiarygodności tej wersji za pomocą kolorowania jest chwilowo niemożliwe. Spróbuj ponownie za około minutę, kiedy kolorowanie powinno zostać zakończone.</td></tr></table>'
 		 },
 	de: { success: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
-			+ '<tr><td>Die farbliche Markierung des Artikeltextes zeigt, was bereits überprüft wurde: Die Orange Markierung steht für neuen, noch nicht überprüften Text; die weiße Markierung steht für Text, der von verschiedenen Autoren durchgesehen wurde. Wenn Du auf ein Wort klickst, wirst Du zum Versionsunterschied geleitet, der auf diejenige Artikelversion zurückgreift, in der das entsprechende Wort eingefügt wurde.</td></tr>'
+			+ '<tr><td>Die farbliche Markierung des Artikeltextes zeigt, was bereits überprüft wurde: Die Orange Markierung steht für neuen, noch nicht überprüften Text; die weiße Markierung steht für Text, der von verschiedenen Autoren durchgesehen wurde. Wenn Du auf ein Wort CTRL-ALT-klickst, wirst Du zum Versionsunterschied geleitet, der auf diejenige Artikelversion zurückgreift, in der das entsprechende Wort eingefügt wurde.</td></tr>'
 			+ '<tr><td>Die Textfarbe und der Textursprung können mit folgenden Befehlen bestimmt werden: [<a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>]; bei Problemen kannst Du auch einen: [<a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">Fehler melden</a>].</td></tr>'
 			+ '</table>',
 			tabhover:  'Dies ist eine Version, die den WikiTrust-Prozess durchlaufen hat',
@@ -70,7 +70,7 @@
 			+ '<tr><td>Für die angefragte Überarbeitung ist zurzeit leider keine Textanalyseinformation verfügbar. Bitte versuche es in zirka 30 Sekunden noch einmal. Die Analyse sollte dann beendet sein.</td></tr></table>'
 		 },
     fr: { success: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
-			+ '<tr><td>Le texte est coloré en fonction de combien il a été révisé. Un fond orange signifie un texte neuf, non révisé, tandis qu\'un fond blanc signifie que le texte a été révisé par des auteurs réputés. Si vous cliquez sur un mot, vous serez envoyés à la révision qui a introduit ce mot.</td></tr>'
+			+ '<tr><td>Le texte est coloré en fonction de combien il a été révisé. Un fond orange signifie un texte neuf, non révisé, tandis qu\'un fond blanc signifie que le texte a été révisé par des auteurs réputés. Si vous CTRL-ALT-cliquez sur un mot, vous serez envoyés à la révision qui a introduit ce mot.</td></tr>'
 			+ '<tr><td>La couleur du texte et l\'origine des mots sont calculés par <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>. Si vous notez un problème, vous pouvez le signaler <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">ici</a>.</td></tr>'
 			+ '</table>',
 			tabhover:  'Trust version colorée de cette page',
