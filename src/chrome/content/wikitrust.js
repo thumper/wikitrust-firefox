@@ -344,8 +344,10 @@
 			  (trust * TRUST_MULTIPLIER / medianTrust)
 		      ));
 	      var classname = COLORS[Math.round(normalized_value)];
-	      var replace = '<span class="'+classname+'" onclick="return showOrigin(event,'
-		  + oid + ')">'+txt+'</span>';
+	      // use fake ':click=', because WikipediaAPI removes onclick
+	      // handler.  We will fix after WpAPI step.
+	      var replace = '<span class="'+classname+':click=return showOrg2(event,'
+		  + oid + ');">'+txt+'</span>';
 	      return replace;
 	  } catch (x) {
 	      log(x);
@@ -396,6 +398,9 @@
 	      // And eliminate any remaining trust tags
 	      colored_text = colored_text.replace(/\{\{#t:\d+,\d+,[^}]+\}\}/g, '');
 
+	      // Fix ':click=' stuff to get around WpAPI cleanup
+	      colored_text = colored_text.replace(/:click=/g, '" onclick="');
+
 	      // Final step: share our data with original server
 	      var url = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
 	      url += 'RemoteAPI';
@@ -432,6 +437,10 @@
 		if (add)
 		    url += sep + 'trust';
 		node.setAttribute('HREF', url);
+		if (/\?trust/.test(url) || /^#/.test(url)) {
+		    // don't follow links if ctrl-alt is pressed
+		    node.setAttribute('onclick', "return ahref(event);");
+		}
 	    }
         }
         var children = node.childNodes;
