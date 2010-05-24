@@ -461,7 +461,7 @@
 
 	var script = page.createElement('script');
 	var url = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
-	url += 'js/trust.js';
+	url += 'js/trust12.js';
 	script.setAttribute('src', url);
 
 	var head = page.getElementsByTagName('head')[0];
@@ -617,16 +617,19 @@ if (FEATURE_TOOLTIP) {
 	trust_li = page.createElement('li');
 	trust_li.setAttribute("id", "ca-trust");
 	trust_li.innerHTML = '<a href="' + articleURL
-	    + '" title="' + getMsg(lang, 'tabhover') + '">'
-	    + getMsg(lang, 'tabtext') + '</a>';
+	    + '" title="' + getMsg(lang, 'tabhover') + '"><span>'
+	    + getMsg(lang, 'tabtext') + '</span></a>';
 
-	var ul = mainTab.parentNode;
+	var co_menu = page.getElementById('ca-view');	// new style Wp pages
+	if (!co_menu) co_menu = mainTab;		// fall back to old style
+	var ul = co_menu.parentNode;
 	ul.appendChild(trust_li);
 
-	var cite_li = page.getElementById('t-cite');
-	if (!cite_li) return null;	
 
 if (FEATURE_VOTING) {
+	var cite_li = page.getElementById('t-cite');
+	if (!cite_li) return trust_li;	
+
 	var vote_a = page.createElement('a');
 	vote_a.setAttribute('id', 'wt-vote-link');
 	vote_a.href = '#voted';
@@ -661,6 +664,9 @@ if (FEATURE_VOTING) {
 	  wtURL += '&debug=1';
 	}
 	tab.setAttribute('class', 'selected');
+	var read_tab = page.getElementById('ca-view');
+	if (read_tab) read_tab.setAttribute('class', '');
+
 	var addedNodes = new Array();
 	addedNodes.push(darkenPage(page));
 	addedNodes.push(showDialog(page, getMsg(lang, 'downloadtrust'), 450,150));
