@@ -88,7 +88,7 @@
 	};
 
 
-    const debug = true;		// to test new renderings
+    const debug = false;		// to test new renderings
     const domainname = '.wikipedia.org';
 
     const FEATURE_TOOLTIP = false;
@@ -461,7 +461,7 @@
 
 	var script = page.createElement('script');
 	var url = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
-	url += 'js/trust12.js';
+	url += 'js/trust.js';
 	script.setAttribute('src', url);
 
 	var head = page.getElementsByTagName('head')[0];
