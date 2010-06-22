@@ -282,7 +282,7 @@
 	var loc = page.location,
 	    lang = getWikiLang(loc);
 	if (!isEnabledWiki(lang)) return null;
-	if (/&diff=/.test(loc.search)) return null;
+	// if (/&diff=/.test(loc.search)) return null;
 	if (/&action=/.test(loc.search)) return null;
 	var title = getTitleFUrl(loc);
 	var wgArticleId = '';
