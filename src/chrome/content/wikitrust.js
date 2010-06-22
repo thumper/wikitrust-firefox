@@ -7,7 +7,7 @@
 			+ '<tr><td>The text color and origin are computed by <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>; if you notice problems, you can submit a bug report <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">here</a>.</td></tr>'
 			+ '</table>',
 			tabhover:  'Trust colored version of this page',
-			tabtext: 'wikitrust',
+			tabtext: 'WikiTrust',
 			downloadtrust: '<p>Downloading trust information from UC Santa Cruz...</p>',
 			downloadhtml: '<p>Requesting HTML from Wikipedia...</p>',
 			ErrWpAPI: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
@@ -44,7 +44,6 @@
 			+ '<tr><td>Tło tekstu oraz informacja o źródłowej edycji wyrazu zostały wygenerowane przez <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>. Jeśli dostrzeżesz jakieś problemy, możesz zgłosić raport o błędzie <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">pod tym linkiem</a>.</td></tr>'
 			+ '</table>',
 			tabhover:  'Sprawdź wiarygodność tej strony za pomocą pokolorowanej wersji',
-			tabtext: 'WikiTrust',
 			downloadtrust: '<p>Pobieranie przeanalizowanego tekst z UC Santa Cruz...</p>',
 			downloadhtml: '<p>Żądanie zawartości HTML z Wikipedii...</p>',
 			ErrWpAPI: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
@@ -59,7 +58,6 @@
 			+ '<tr><td>Die Textfarbe und der Textursprung können mit folgenden Befehlen bestimmt werden: [<a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>]; bei Problemen kannst Du auch einen: [<a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">Fehler melden</a>].</td></tr>'
 			+ '</table>',
 			tabhover:  'Dies ist eine Version, die den WikiTrust-Prozess durchlaufen hat',
-			tabtext: 'WikiTrust',
 			downloadtrust: '<p>Informationsdownload von UC Santa Cruz...</p>',
 			downloadhtml: '<p>Frage HTML bei der Wikipedia an...</p>',
 			ErrWpAPI: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
@@ -74,7 +72,6 @@
 			+ '<tr><td>La couleur du texte et l\'origine des mots sont calculés par <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>. Si vous notez un problème, vous pouvez le signaler <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">ici</a>.</td></tr>'
 			+ '</table>',
 			tabhover:  'Trust version colorée de cette page',
-			tabtext: 'WikiTrust',
 			downloadtrust: '<p>Téléchargement d\'information de UC Santa Cruz en cours ...</p>',
 			downloadhtml: '<p>Demande d\'information de Wikipedia en cours ...</p>',
 			ErrWpAPI: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
@@ -680,8 +677,12 @@ if (FEATURE_VOTING) {
 		var bodyContent = page.getElementById('bodyContent'),
 		    box = getBoxedMsg(page, lang, msg);
 		if (msg == 'ErrMsg')
-		    box.innerHTML = box.innerHTML.replace('MSG', logmsg);
-		if (bodyContent && box) bodyContent.insertBefore(box, bodyContent.firstChild);
+		  box.innerHTML = box.innerHTML.replace('MSG', logmsg);
+		if (bodyContent && box) {
+		  bodyContent.insertBefore(box, bodyContent.firstChild);
+		  var coords = page.getElementById('coordinates');
+		  if (coords) coords.style.cssText = 'top: -20px !important';
+		}
 	      } catch (x) { log('failureFunc: ' + x); }
 	    };
 	}
