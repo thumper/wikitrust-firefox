@@ -94,8 +94,6 @@
     const TRUST_MULTIPLIER = 10;
     const COLORS = [ "trust0", "trust1", "trust2", "trust3", "trust4", "trust5", "trust6", "trust7", "trust9", "trust10" ];
 
-    const default_WtURL = '.collaborativetrust.com/WikiTrust/'; // wikitrust
-    const default_WpURL = '.wikipedia.org/w/api.php'; // wikipedia
     const prefService = Components.classes["@mozilla.org/preferences-service;1"].
 		getService(Components.interfaces.nsIPrefBranch);
     var enabledWikis = { };
@@ -231,6 +229,26 @@
 	}
     }
 
+    function getWikiAPI(loc) {
+	try {
+	    var lang = getWikiLang(page.location);
+	    if (!lang) return null;
+	    if (loc.host == 'secure.wikimedia.org')
+		return 'https://secure.wikimedia.org/wikipedia/'+lang+'/w/api.php';
+	    return 'http://' + lang + '.wikipedia.org/w/api.php';
+	} catch (x) {
+	    return null;
+	}
+    }
+
+    function getWikitrustAPI(loc) {
+	const default_WtURL = '.collaborativetrust.com/WikiTrust/'; // wikitrust
+	var lang = getWikiLang(loc);
+	if (!lang) return null;
+	var wtURL = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
+	return wtURL;
+    }
+
     function isEnabledWiki(lang) {
 	if (!lang) return false;
 	var result = (lang in langmsgs),
@@ -343,7 +361,7 @@
 	else return url + '?trust';
     }
 
-    function color_Wiki2Html(lang, title, revid, medianTrust, colored_text, continuation, failureFunc) {
+    function color_Wiki2Html(loc, title, revid, medianTrust, colored_text, continuation, failureFunc) {
       var genericHandler = function (match, trval, oid, username, txt) {
 	  try {
 	      var trust = parseFloat(trval) + 0.5;
@@ -380,11 +398,12 @@
 	);
 
 	// Need Wikipedia parser to do some work, too.
-	var wpurl = 'http://' + lang + getPrefStr('wpApiUrl', default_WpURL);
 	var params = 'action=parse&format=json'
 	    + '&title=' + encodeURIComponent(title)
 	    + '&text='  + encodeURIComponent(colored_text);
-	http_post(wpurl, params,
+	var apiUrl = getWikiAPI(loc);
+log("posting to " + apiUrl);
+	http_post(apiUrl, params,
 	  function(req) {
 	    try {
 	      var json = JsonParser(req.responseText),
@@ -410,7 +429,7 @@
 	      colored_text = colored_text.replace(/:click=/g, '" onclick="');
 
 	      // Final step: share our data with original server
-	      var url = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
+	      var url = getWikitrustAPI(loc);
 	      url += 'RemoteAPI';
 	      var params = 'method=sharehtml&revid=' + encodeURIComponent(revid)
 		    + '&myhtml='  + encodeURIComponent(colored_text);
@@ -658,11 +677,10 @@ if (FEATURE_VOTING) {
     function maybeColorPage(page, tab) {
 	if (!tab) return;
 	if (!/[?&]trust\b/.test(page.location.search)) return;
-	var lang = getWikiLang(page.location);
 	addTrustHeaders(page);
 	var wikiParams = getWikiParams(page);
 	if (!wikiParams) return;
-	var wtURL = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
+	var wtURL = getWikitrustAPI(loc);
 	wtURL += 'RemoteAPI?method=wikiorhtml'
 	    + '&title=' + encodeURIComponent(wikiParams[0])
 	    + '&pageid=' + wikiParams[1]
@@ -758,7 +776,7 @@ if (FEATURE_VOTING) {
 		    addedNodes.push(darkenPage(page));
 		    addedNodes.push(showDialog(page, getMsg(lang, 'downloadhtml'), 450,150));
 
-		    color_Wiki2Html(lang, title, wikiParams[2], medianTrust, colored_text, displayFunc, failureFunc);
+		    color_Wiki2Html(page.location, lang, title, wikiParams[2], medianTrust, colored_text, displayFunc, failureFunc);
 		} catch(x) { log('maybeColorPage: '+x); }
 	    }, failureFunc('No response from server', 'ErrBadTrust'));
     }
