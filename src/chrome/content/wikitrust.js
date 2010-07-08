@@ -86,7 +86,6 @@
 
 
     const debug = false;		// to test new renderings
-    const domainname = '.wikipedia.org';
 
     const FEATURE_TOOLTIP = false;
     const FEATURE_VOTING = false;
@@ -217,7 +216,14 @@
 
     function getWikiLang(loc) {
 	try {
-	    var dompos = loc.host.indexOf(domainname);
+	    if (loc.host == 'secure.wikimedia.org') {
+		var match = /^\/wikipedia\/([^\/]+)\//.exec(loc.pathname);
+		// unescape() doesn't decode utf8.  Use decodeURIComponent().
+		if (match && match[1] != '') return decodeURIComponent(match[1]);
+		return null;
+	    }
+	    // Otherwise, traditional <en>.wikipedia.org url
+	    var dompos = loc.host.indexOf('.wikipedia.org');
 	    if (dompos < 0) return null;
 	    else return loc.host.substr(0, dompos);
 	} catch (x) {
@@ -270,10 +276,15 @@
     function getTitleFUrl(loc) {
 	var title = getQueryVariable(loc.search, 'title');
 	if (title != '') return title;
-	var match = /^\/wiki\/(.*)$/.exec(loc.pathname);
+	// Trying to match against:
+	//    en.wikipedia.org/wiki/Main_Page
+	//    en.wikipedia.org/w/index.php?title=Main_Page
+	//    secure.wikimedia.org/wikipedia/en/wiki/Main_Page
+	//    secure.wikimedia.org/wikipedia/en/w/index.php?title=Main_Page
+	var match = /\/wiki\/(.*)$/.exec(loc.pathname);
 	// unescape() doesn't decode utf8.  Use decodeURIComponent().
 	if (match && match[1] != '') return decodeURIComponent(match[1]);
-	match = /^\/w\/index\.php\/(.*)$/.exec(loc.pathname);
+	match = /\/w\/index\.php\/(.*)$/.exec(loc.pathname);
 	if (match && match[1] != '') return decodeURIComponent(match[1]);
 	return null;
     }
@@ -427,9 +438,9 @@
 		    sep = '?';
 		}
 		var add = false;
-		if (/^\/wiki\//.test(url))
+		if (/\/wiki\//.test(url))
 		    add = true;
-		if (/^\/w\/index\.php/.test(url))
+		if (/\/w\/index\.php/.test(url))
 		    add = true;
 		if (add)
 		    url += sep + 'trust';
