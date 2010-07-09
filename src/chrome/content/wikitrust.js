@@ -86,6 +86,7 @@
 
 
     const debug = false;		// to test new renderings
+    const default_WtURL = '.collaborativetrust.com/WikiTrust/'; // wikitrust
 
     const FEATURE_TOOLTIP = false;
     const FEATURE_VOTING = false;
@@ -214,6 +215,7 @@
 
     function getWikiLang(loc) {
 	try {
+	    if ((loc.protocol != 'http:') && (loc.protocol != 'https:')) return null;
 	    if (loc.host == 'secure.wikimedia.org') {
 		var match = /^\/wikipedia\/([^\/]+)\//.exec(loc.pathname);
 		// unescape() doesn't decode utf8.  Use decodeURIComponent().
@@ -225,28 +227,34 @@
 	    if (dompos < 0) return null;
 	    else return loc.host.substr(0, dompos);
 	} catch (x) {
+	    if (debug) log("ERROR: getWikiLang: " + x);
 	    return null;
 	}
     }
 
     function getWikiAPI(loc) {
 	try {
-	    var lang = getWikiLang(page.location);
+	    var lang = getWikiLang(loc);
 	    if (!lang) return null;
 	    if (loc.host == 'secure.wikimedia.org')
 		return 'https://secure.wikimedia.org/wikipedia/'+lang+'/w/api.php';
 	    return 'http://' + lang + '.wikipedia.org/w/api.php';
 	} catch (x) {
+	    if (debug) log("ERROR: getWikiAPI: " + x);
 	    return null;
 	}
     }
 
     function getWikitrustAPI(loc) {
-	const default_WtURL = '.collaborativetrust.com/WikiTrust/'; // wikitrust
-	var lang = getWikiLang(loc);
-	if (!lang) return null;
-	var wtURL = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
-	return wtURL;
+	try {
+	    var lang = getWikiLang(loc);
+	    if (!lang) return null;
+	    var wtURL = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
+	    return wtURL;
+	} catch (x) {
+	    if (debug) log("ERROR: getWikitrustAPI: " + x);
+	    return null;
+	}
     }
 
     function isEnabledWiki(lang) {
@@ -292,6 +300,7 @@
     }
 
     function getTitleFUrl(loc) {
+if (debug) log("getTitleFUrl: " + loc);
 	var title = getQueryVariable(loc.search, 'title');
 	if (title != '') return title;
 	// Trying to match against:
@@ -362,6 +371,7 @@
     }
 
     function color_Wiki2Html(loc, title, revid, medianTrust, colored_text, continuation, failureFunc) {
+if (debug) log("color_Wiki2Html: " + loc);
       var genericHandler = function (match, trval, oid, username, txt) {
 	  try {
 	      var trust = parseFloat(trval) + 0.5;
@@ -402,7 +412,6 @@
 	    + '&title=' + encodeURIComponent(title)
 	    + '&text='  + encodeURIComponent(colored_text);
 	var apiUrl = getWikiAPI(loc);
-log("posting to " + apiUrl);
 	http_post(apiUrl, params,
 	  function(req) {
 	    try {
@@ -680,7 +689,7 @@ if (FEATURE_VOTING) {
 	addTrustHeaders(page);
 	var wikiParams = getWikiParams(page);
 	if (!wikiParams) return;
-	var wtURL = getWikitrustAPI(loc);
+	var wtURL = getWikitrustAPI(page.location);
 	wtURL += 'RemoteAPI?method=wikiorhtml'
 	    + '&title=' + encodeURIComponent(wikiParams[0])
 	    + '&pageid=' + wikiParams[1]
@@ -693,6 +702,7 @@ if (FEATURE_VOTING) {
 	var read_tab = page.getElementById('ca-view');
 	if (read_tab) read_tab.setAttribute('class', '');
 
+	var lang = getWikiLang(page.location);
 	var addedNodes = new Array();
 	addedNodes.push(darkenPage(page));
 	addedNodes.push(showDialog(page, getMsg(lang, 'downloadtrust'), 450,150));
@@ -776,7 +786,7 @@ if (FEATURE_VOTING) {
 		    addedNodes.push(darkenPage(page));
 		    addedNodes.push(showDialog(page, getMsg(lang, 'downloadhtml'), 450,150));
 
-		    color_Wiki2Html(page.location, lang, title, wikiParams[2], medianTrust, colored_text, displayFunc, failureFunc);
+		    color_Wiki2Html(page.location, title, wikiParams[2], medianTrust, colored_text, displayFunc, failureFunc);
 		} catch(x) { log('maybeColorPage: '+x); }
 	    }, failureFunc('No response from server', 'ErrBadTrust'));
     }
