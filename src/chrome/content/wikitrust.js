@@ -519,13 +519,13 @@ log("generic handler: " + txt);
 	script.setAttribute('type', 'text/javascript');
 	script.innerHTML= "" + <r><![CDATA[
 function showOrg2(ev, revnum) {
-  if(!ev.ctrlKey || !ev.altKey) return true;
+  if((!ev.ctrlKey && !ev.metaKey) || !ev.altKey) return true;
   document.location.href = wgScriptPath + "/index.php?title=" + encodeURIComponent(wgPageName) + "&diff=" + encodeURIComponent(revnum) + "&trust";
   return false;
 }
 
 function ahref(ev) {
-  if(ev.ctrlKey && ev.altKey) return false;
+  if((ev.metaKey||ev.ctrlKey) && ev.altKey) return false;
   return true;
 }
 function voteCallback(http_request){
