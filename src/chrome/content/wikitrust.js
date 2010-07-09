@@ -373,6 +373,7 @@ if (debug) log("getTitleFUrl: " + loc);
     function color_Wiki2Html(loc, title, revid, medianTrust, colored_text, continuation, failureFunc) {
 if (debug) log("color_Wiki2Html: " + loc);
       var genericHandler = function (match, trval, oid, username, txt) {
+log("generic handler: " + txt);
 	  try {
 	      var trust = parseFloat(trval) + 0.5;
 	      var normalized_value = min(MAX_TRUST_VALUE,
@@ -488,17 +489,93 @@ if (debug) log("color_Wiki2Html: " + loc);
     function addTrustHeaders(page) {
 	var lang = getWikiLang(page.location);
 
-	var css = page.createElement('link');
-	css.setAttribute('rel', 'stylesheet');
+	var css = page.createElement('style');
 	css.setAttribute('type', 'text/css');
-	var url = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
-	url += 'css/trust.css';
-	css.setAttribute('href', url);
+	css.innerHTML= "" + <r><![CDATA[
+.trust1 { background-color: #FFC05C; }
+.trust2 { background-color: #FFC870; }
+.trust3 { background-color: #FFD085; }
+.trust4 { background-color: #FFD899; }
+.trust5 { background-color: #FFE0AD; }
+.trust6 { background-color: #FFE8C2; }
+.trust7 { background-color: #FFEFD6; }
+.trust8 { background-color: #FFF7EB; }
+.trust9 { background-color: #FFFFFF; }
+.trust10 { background-color: #FFFFFF; }
+
+#vote-button-done {
+  visibility: hidden;
+  position: relative;
+  text-align: right;
+}
+
+#vote-button {
+  position: relative;
+  text-align: right;
+}
+]]></r>;
 
 	var script = page.createElement('script');
-	var url = 'http://'+ lang + getPrefStr('wtUrl', default_WtURL);
-	url += 'js/trust.js';
-	script.setAttribute('src', url);
+	script.setAttribute('type', 'text/javascript');
+	script.innerHTML= "" + <r><![CDATA[
+function showOrg2(ev, revnum) {
+  if(!ev.ctrlKey || !ev.altKey) return true;
+  document.location.href = wgScriptPath + "/index.php?title=" + encodeURIComponent(wgPageName) + "&diff=" + encodeURIComponent(revnum) + "&trust";
+  return false;
+}
+
+function ahref(ev) {
+  if(ev.ctrlKey && ev.altKey) return false;
+  return true;
+}
+function voteCallback(http_request){
+  if ((http_request.readyState == 4) && (http_request.status == 200)) {
+    document.getElementById("vote-button-done").style.visibility = "visible";
+    document.getElementById("vote-button").style.visibility = "hidden";
+    //alert(http_request.responseText);
+    var trustDiv = document.createElement('div');
+    trustDriv.setAttribute('id', 'trust-div');
+    var bodyContent = document.getElementById('bodyContent');
+    var siteSub = document.getElementById('siteSub');
+    var contentSub = document.getElementById('contentSub');
+    var catlinks = document.getElementById('catlinks');
+    bodyContent.innerHTML = '';
+    bodyContent.appendChild(siteSub);
+    bodyContent.appendChild(contentSub);
+    bodyContent.appendChild(trustDiv);
+    if (catlinks) bodyContent.appendChild(catlinks);
+    trustDiv.innerHTML = http_request.responseText;
+    return true;
+  } else {
+    // Turn off error reporting.
+    //alert(http_request.responseText);
+    return false;
+  }
+}
+
+function getQueryVariable(variable) {
+  var query = window.location.search.substring(1);
+  var vars = query.split("&");
+  for (var i=0;i<vars.length;i++) {
+    var pair = vars[i].split("=");
+    if (pair[0] == variable) {
+      return pair[1];
+    }
+  }
+  return "";
+}
+
+function startVote(){
+  var revID = getQueryVariable("oldid");
+  if (revID == ""){
+    revID = getQueryVariable("diff");
+    if (revID == ""){
+      revID = wgCurRevisionId;
+    }
+  }
+  return sajax_do_call( "WikiTrust::ajax_recordVote", [wgUserName, wgArticleId, revID, wgPageName] , voteCallback );
+}
+]]></r>;
 
 	var head = page.getElementsByTagName('head')[0];
 	head.appendChild(css);
