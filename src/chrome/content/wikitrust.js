@@ -373,7 +373,6 @@ if (debug) log("getTitleFUrl: " + loc);
     function color_Wiki2Html(loc, title, revid, medianTrust, colored_text, continuation, failureFunc) {
 if (debug) log("color_Wiki2Html: " + loc);
       var genericHandler = function (match, trval, oid, username, txt) {
-log("generic handler: " + txt);
 	  try {
 	      var trust = parseFloat(trval) + 0.5;
 	      var normalized_value = min(MAX_TRUST_VALUE,
@@ -763,9 +762,9 @@ if (FEATURE_VOTING) {
     function maybeColorPage(page, tab) {
 	if (!tab) return;
 	if (!/[?&]trust\b/.test(page.location.search)) return;
-	addTrustHeaders(page);
 	var wikiParams = getWikiParams(page);
 	if (!wikiParams) return;
+	addTrustHeaders(page);
 	var wtURL = getWikitrustAPI(page.location);
 	wtURL += 'RemoteAPI?method=wikiorhtml'
 	    + '&title=' + encodeURIComponent(wikiParams[0])
