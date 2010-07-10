@@ -759,6 +759,42 @@ if (FEATURE_VOTING) {
 	return trust_li;
     }
 
+    function maybeColorRC(page) {
+	if (!/[?&]trust\b/.test(page.location.search)) return;
+	var loc = page.location,
+	    lang = getWikiLang(loc);
+	if (!isEnabledWiki(lang)) return;
+	var title = getTitleFUrl(loc);
+	if (title != 'Special:RecentChanges') return;
+	// process the list of articles on this page
+	addTrustHeaders(page);
+	var wtURL = getWikitrustAPI(page.location);
+	var lis = page.getElementsByTagName('li');
+	for (i in lis) {
+	    var li = lis[i];
+	    var cl = li.getAttribute('class');
+	    if (!/^mw-line-/.test(cl)) continue;
+	    var txt = li.innerHTML;
+	    var match = /title=([^&]+)&amp;curid=(\d+)&amp;diff=(\d+)&amp;/.exec(txt);
+	    if (!match) continue;
+	    var url = wtURL + 'RemoteAPI?method=quality'
+		+ '&title=' + match[1]
+		+ '&pageid=' + match[2]
+		+ '&revid=' + match[3];
+	    function qualityResponseFunc(url, li, title, inner) {
+		return function (req) {
+		    if (req.responseText == null) return;
+		    var match = /^[0-9\.]+$/.exec(req.responseText);
+		    if (!match) return;
+		    var level = Math.floor(10*req.responseText);
+		    var classname = COLORS[level];
+		    li.innerHTML = '<span class="'+classname+'">'+inner+'</span>';
+		};
+	    }
+	    http_get(url, qualityResponseFunc(url,li,match[1],txt), function (req) { });
+	}
+    }
+
     function maybeColorPage(page, tab) {
 	if (!tab) return;
 	if (!/[?&]trust\b/.test(page.location.search)) return;
@@ -880,6 +916,7 @@ if (FEATURE_VOTING) {
 		try {
 		    tab = maybeAddTrustTab(page);
 		    maybeColorPage(page, tab);
+		    maybeColorRC(page);
 		} catch (e) {
 		    log(e);
 		};
