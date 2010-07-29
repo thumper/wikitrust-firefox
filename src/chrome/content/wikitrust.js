@@ -129,6 +129,11 @@
 		+ now.getTime() + ": " + str);
     }
 
+    function debugReturn(str, val) {
+	if (debug) log(str);
+	return val;
+    }
+
     function getJsonNativeParser() {
 	return JSON.parse;
     }
@@ -319,9 +324,10 @@ if (debug) log("getTitleFUrl: " + loc);
     function getWikiParams(page) {
 	var loc = page.location,
 	    lang = getWikiLang(loc);
-	if (!isEnabledWiki(lang)) return null;
-	if (/&diff=/.test(loc.search)) return null;
-	if (/&action=/.test(loc.search)) return null;
+	if (!isEnabledWiki(lang))
+	  return debugReturn('getWikiParams: not enabled', null);
+	if (/&action=/.test(loc.search))
+	  return debugReturn('getWikiParams: has action', null);
 	var title = getTitleFUrl(loc);
 	var wgArticleId = '';
 	var revID = getQueryVariable(loc.search, 'oldid');
@@ -770,7 +776,7 @@ if (FEATURE_VOTING) {
 	addTrustHeaders(page);
 	var wtURL = getWikitrustAPI(page.location);
 	var lis = page.getElementsByTagName('li');
-	for (i in lis) {
+	for (var i in lis) {
 	    var li = lis[i];
 	    var cl = li.getAttribute('class');
 	    if (!/^mw-line-/.test(cl)) continue;
@@ -795,10 +801,43 @@ if (FEATURE_VOTING) {
 	}
     }
 
+    /* Argh.  There isn't a nice DIV container that holds the
+     * actual revision content separate from meta-content.
+     * Search for what we want to keep, by looking for
+     *     <!-- bodytext -->
+     * and maybe also keep some 'diff' stuff afterwards:
+     *     <table class='diff'>...</table>
+     *     <h2>Revision as of...</h2>
+     */
+    function getHeadersNotContent(root) {
+      var list = [];
+      var bodyText = 0;
+      var diff = false;
+      for (var i=0; i <root.childNodes.length; i++) {
+	var o = root.childNodes[i];
+	if (bodyText && o.tagName) {
+	  if (diff && o.tagName == 'H2') bodyText = i;
+	  if (o.tagName == 'TABLE') {
+	    if (o.getAttribute('class') != 'diff') {
+	      bodyText = i;
+	      diff = true;
+	    } else {
+	      i = root.childNodes.length;
+	    }
+	  }
+	  if (o.tagName == 'P') i = root.childNodes.length;
+	}
+      }
+      for (var i=0; i < bodyText; i++)
+	list.push(root.childNodes[i]);
+      return list;
+    }
+
     function maybeColorPage(page, tab) {
 	if (!tab) return;
 	if (!/[?&]trust\b/.test(page.location.search)) return;
 	var wikiParams = getWikiParams(page);
+if (debug &&!wikiParams) log('maybeColorPage: params => no color');
 	if (!wikiParams) return;
 	addTrustHeaders(page);
 	var wtURL = getWikitrustAPI(page.location);
@@ -846,12 +885,10 @@ if (FEATURE_VOTING) {
 	  trustDiv.setAttribute('id', 'trust-div');
 
 	  var bodyContent = page.getElementById('bodyContent'),
-	      siteSub = page.getElementById('siteSub'),
-	      contentSub = page.getElementById('contentSub'),
+	      pageHeaders = getHeadersNotContent(bodyContent),
 	      catlinks = page.getElementById('catlinks');
 	  bodyContent.innerHTML = '';
-	  bodyContent.appendChild(siteSub);
-	  bodyContent.appendChild(contentSub);
+	  for (var i in pageHeaders) bodyContent.appendChild(pageHeaders[i]);
 	  bodyContent.appendChild(trustDiv);
 	  if (catlinks) bodyContent.appendChild(catlinks);
 	  trustDiv.innerHTML = txt;
