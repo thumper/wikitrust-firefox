@@ -185,7 +185,6 @@
 		failure(request);
 	};
 	request.open('GET', path, true);
-	//request.setRequestHeader("Cache-Control", "max-age=0");
 	request.send(null);
     }
 
@@ -237,7 +236,7 @@
 	}
     }
 
-    function getWikiAPI(loc) {
+    function getWpAPI(loc) {
 	try {
 	    var lang = getWikiLang(loc);
 	    if (!lang) return null;
@@ -245,7 +244,7 @@
 		return 'https://secure.wikimedia.org/wikipedia/'+lang+'/w/api.php';
 	    return 'http://' + lang + '.wikipedia.org/w/api.php';
 	} catch (x) {
-	    if (debug) log("ERROR: getWikiAPI: " + x);
+	    if (debug) log("ERROR: getWpAPI: " + x);
 	    return null;
 	}
     }
@@ -305,7 +304,6 @@
     }
 
     function getTitleFUrl(loc) {
-if (debug) log("getTitleFUrl: " + loc);
 	var title = getQueryVariable(loc.search, 'title');
 	if (title != '') return title;
 	// Trying to match against:
@@ -417,7 +415,7 @@ if (debug) log("color_Wiki2Html: " + loc);
 	var params = 'action=parse&format=json'
 	    + '&title=' + encodeURIComponent(title)
 	    + '&text='  + encodeURIComponent(colored_text);
-	var apiUrl = getWikiAPI(loc);
+	var apiUrl = getWpAPI(loc);
 	http_post(apiUrl, params,
 	  function(req) {
 	    try {
