@@ -2,3 +2,10 @@ WikiTrust is a project to compute text reputation for all
 articles in the Wikipedia.  WikiTrust-FF is a Firefox plugin
 which modifies the Wikipedia website to add a "WikiTrust"
 tab to view a colored version of the article. 
+
+The Firefox plugin is available for download at
+   https://addons.mozilla.org/en-US/firefox/addon/11087/
+
+The main WikiTrust project page is at
+   http://www.wikitrust.net/
+
