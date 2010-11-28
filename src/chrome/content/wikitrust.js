@@ -522,17 +522,17 @@ if (debug) log("color_Wiki2Html: " + loc);
 	script.setAttribute('type', 'text/javascript');
 	script.innerHTML= "" + <r><![CDATA[
 function showOrg2(ev, revnum) {
-  if((!ev.ctrlKey && !ev.metaKey) || !ev.altKey) return true;
-  document.location.href = wgScriptPath + "/index.php?title=" + encodeURIComponent(wgPageName) + "&diff=" + encodeURIComponent(revnum) + "&trust";
+  if((!ev.ctrlKey &amp;&amp; !ev.metaKey) || !ev.altKey) return true;
+  document.location.href = wgScriptPath + "/index.php?title=" + encodeURIComponent(wgPageName) + "&amp;diff=" + encodeURIComponent(revnum) + "&amp;trust";
   return false;
 }
 
 function ahref(ev) {
-  if((ev.metaKey||ev.ctrlKey) && ev.altKey) return false;
+  if((ev.metaKey||ev.ctrlKey) &amp;&amp; ev.altKey) return false;
   return true;
 }
 function voteCallback(http_request){
-  if ((http_request.readyState == 4) && (http_request.status == 200)) {
+  if ((http_request.readyState == 4) &amp;&amp; (http_request.status == 200)) {
     document.getElementById("vote-button-done").style.visibility = "visible";
     document.getElementById("vote-button").style.visibility = "hidden";
     //alert(http_request.responseText);
@@ -558,8 +558,8 @@ function voteCallback(http_request){
 
 function getQueryVariable(variable) {
   var query = window.location.search.substring(1);
-  var vars = query.split("&");
-  for (var i=0;i<vars.length;i++) {
+  var vars = query.split("&amp;");
+  for (var i=0;i &lt; vars.length;i++) {
     var pair = vars[i].split("=");
     if (pair[0] == variable) {
       return pair[1];
@@ -579,7 +579,6 @@ function startVote(){
   return sajax_do_call( "WikiTrust::ajax_recordVote", [wgUserName, wgArticleId, revID, wgPageName] , voteCallback );
 }
 ]]></r>;
-
 	var head = page.getElementsByTagName('head')[0];
 	head.appendChild(css);
 	head.appendChild(script);
