@@ -520,7 +520,7 @@ if (debug) log("color_Wiki2Html: " + loc);
 
 	var script = page.createElement('script');
 	script.setAttribute('type', 'text/javascript');
-	script.innerHTML= "" + <r><![CDATA[
+	var src = "" + <r><![CDATA[
 function showOrg2(ev, revnum) {
   if((!ev.ctrlKey &amp;&amp; !ev.metaKey) || !ev.altKey) return true;
   document.location.href = wgScriptPath + "/index.php?title=" + encodeURIComponent(wgPageName) + "&amp;diff=" + encodeURIComponent(revnum) + "&amp;trust";
@@ -579,6 +579,7 @@ function startVote(){
   return sajax_do_call( "WikiTrust::ajax_recordVote", [wgUserName, wgArticleId, revID, wgPageName] , voteCallback );
 }
 ]]></r>;
+	script.appendChild( page.createTextNode( src ) );
 	var head = page.getElementsByTagName('head')[0];
 	head.appendChild(css);
 	head.appendChild(script);
