@@ -520,6 +520,7 @@ if (debug) log("color_Wiki2Html: " + loc);
 
 	var script = page.createElement('script');
 	script.setAttribute('type', 'text/javascript');
+	// Note use of E4X definition
 	var src = "" + <r><![CDATA[
 function showOrg2(ev, revnum) {
   if((!ev.ctrlKey &amp;&amp; !ev.metaKey) || !ev.altKey) return true;
