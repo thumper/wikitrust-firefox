@@ -85,7 +85,7 @@
 	};
 
 
-    const debug = true;		// to test new renderings
+    const debug = false;		// to test new renderings
     const default_WtURL = '.collaborativetrust.com/WikiTrust/'; // wikitrust
 
     const FEATURE_TOOLTIP = false;
@@ -412,6 +412,7 @@ if (debug) log("color_Wiki2Html: " + loc);
 	);
 
 	// Need Wikipedia parser to do some work, too.
+	if (debug) log('sending text to Wp: ' + colored_text);
 	var params = 'action=parse&format=json'
 	    + '&title=' + encodeURIComponent(title)
 	    + '&text='  + encodeURIComponent(colored_text);
@@ -424,10 +425,10 @@ if (debug) log("color_Wiki2Html: " + loc);
 	      json = undefined;
 
 	      // Fix edit section links
-	      colored_text = colored_text.replace(/<span class="editsection"([^>]*)>(.*?) title="(.*?)">/g,
+	      colored_text = colored_text.replace(/<span class="editsection"([^>]*)>(.*?) title="(.*?)"/g,
 		function (match, one, two, three) {
 		  three = three.replace(/\{\{#t:\d+,\d+,[^}]+\}\}/g, '');
-		  return '<span class="editsection"'+one+'>'+two+' title="'+three+'">';
+		  return '<span class="editsection"'+one+'>'+two+' title="'+three+'"';
 		}
 	      );
 
@@ -815,8 +816,10 @@ if (FEATURE_VOTING) {
       for (var i=0; i <root.childNodes.length; i++) {
 	var o = root.childNodes[i];
 	if (o.tagName) {
+	  if (debug) log('getHeadersNotContent: tag ' + o.tagName + ' @ ' + i);
 	  if (diff && o.tagName == 'H2') {
 	      // should be the "Revision as on..." text
+	      if (debug) log('getHeadersNotContent: found RevH2 @ ' + i);
 	      bodyText = i+1;
 	      i = root.childNodes.length;
 	  }
@@ -843,6 +846,7 @@ if (FEATURE_VOTING) {
 	  }
 	}
       }
+      if (debug) log('getHeadersNotContent: bodyText=' + bodyText);
       for (var i=0; i < bodyText; i++)
 	list.push(root.childNodes[i]);
       return list;
