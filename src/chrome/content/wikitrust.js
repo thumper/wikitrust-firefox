@@ -814,23 +814,32 @@ if (FEATURE_VOTING) {
       var diff = false;
       for (var i=0; i <root.childNodes.length; i++) {
 	var o = root.childNodes[i];
-	if (bodyText && o.tagName) {
+	if (o.tagName) {
 	  if (diff && o.tagName == 'H2') {
-	      if (debug) log('getHeadersNotContent: diff + H2 at i='+i);
-	      bodyText = i;
+	      // should be the "Revision as on..." text
+	      bodyText = i+1;
+	      i = root.childNodes.length;
 	  }
 	  if (o.tagName == 'TABLE') {
-	    if (o.getAttribute('class') != 'diff') {
-	      if (debug) log('getHeadersNotContent: TABLE+diff at i='+i);
+	    if (o.getAttribute('class') == 'diff') {
 	      bodyText = i;
 	      diff = true;
 	    } else {
+	      // must be part of the content
+	      bodyText = i;
 	      i = root.childNodes.length;
 	    }
 	  }
 	  if (o.tagName == 'P') {
-	    if (debug) log('getHeadersNotContent: P at i='+i);
+	    bodyText = i;
 	    i = root.childNodes.length;
+	  }
+	  if (o.tagName == 'DIV') {
+	    var c = o.getAttribute('class');
+	    if (c && c.match(/thumb|dablink/)) {
+	      bodyText = i;
+	      i = root.childNodes.length;
+	    }
 	  }
 	}
       }
