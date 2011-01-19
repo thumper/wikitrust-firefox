@@ -85,7 +85,7 @@
 	};
 
 
-    const debug = false;		// to test new renderings
+    const debug = true;		// to test new renderings
     const default_WtURL = '.collaborativetrust.com/WikiTrust/'; // wikitrust
 
     const FEATURE_TOOLTIP = false;
@@ -815,16 +815,23 @@ if (FEATURE_VOTING) {
       for (var i=0; i <root.childNodes.length; i++) {
 	var o = root.childNodes[i];
 	if (bodyText && o.tagName) {
-	  if (diff && o.tagName == 'H2') bodyText = i;
+	  if (diff && o.tagName == 'H2') {
+	      if (debug) log('getHeadersNotContent: diff + H2 at i='+i);
+	      bodyText = i;
+	  }
 	  if (o.tagName == 'TABLE') {
 	    if (o.getAttribute('class') != 'diff') {
+	      if (debug) log('getHeadersNotContent: TABLE+diff at i='+i);
 	      bodyText = i;
 	      diff = true;
 	    } else {
 	      i = root.childNodes.length;
 	    }
 	  }
-	  if (o.tagName == 'P') i = root.childNodes.length;
+	  if (o.tagName == 'P') {
+	    if (debug) log('getHeadersNotContent: P at i='+i);
+	    i = root.childNodes.length;
+	  }
 	}
       }
       for (var i=0; i < bodyText; i++)
