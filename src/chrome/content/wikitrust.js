@@ -360,10 +360,10 @@
 		|| /trust/.test(loc.search))
 	{
 	    var title = getTitleFUrl(loc);
-	    log("stripped action: title = " + title);
+	    if (debug) log("stripped action: title = " + title);
 	    return "/wiki/" + title;
 	}
-	log("stripped nothing: search = " + loc.search);
+	if (debug) log("stripped nothing: search = " + loc.search);
 	return loc.pathname + loc.search;
     }
 
@@ -727,7 +727,7 @@ if (FEATURE_TOOLTIP) {
 	
 	var trust_li = page.getElementById('ca-trust');
 	if (trust_li) {
-	    log("trust tab already on page.");
+	    if (debug) log("trust tab already on page.");
 	    return null;	// already done, eh?
 	}
 
@@ -876,7 +876,7 @@ if (debug &&!wikiParams) log('maybeColorPage: params => no color');
 	var addedNodes = new Array();
 	addedNodes.push(darkenPage(page));
 	addedNodes.push(showDialog(page, getMsg(lang, 'downloadtrust'), 450,150));
-	log("Requesting trust url = " + wtURL);
+	if (debug) log("Requesting trust url = " + wtURL);
 	var failureFunc = function (logmsg, msg) {
 	    return function (req) {
 	      try {
@@ -967,7 +967,7 @@ if (FEATURE_VOTING) {
 		if (page.nodeName != "#document") return;
 		if (!page.location) return;
 
-		log("DOMContentLoaded event for loc="+page.location);
+		if (debug) log("DOMContentLoaded event for loc="+page.location);
 
 		try {
 		    tab = maybeAddTrustTab(page);
