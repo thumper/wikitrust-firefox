@@ -85,7 +85,7 @@
 	};
 
 
-    const debug = true;		// to test new renderings
+    const debug = false;		// to test new renderings
     const default_WtURL = '.collaborativetrust.com/WikiTrust/'; // wikitrust
 
     const FEATURE_TOOLTIP = false;
@@ -302,10 +302,8 @@
 	var safeWin = page.defaultView;
 	var unsafeWin = safeWin.wrappedJSObject;
 	if (unsafeWin.mediaWiki[varname]) {
-	    log("var " + varname + " == " + unsafeWin.mediaWiki[varname]);
 	    return unsafeWin.mediaWiki[varname];
 	} else {
-	    log("var " + varname + " == " + unsafeWin[varname]);
 	    return unsafeWin[varname];
 	}
     }
@@ -750,7 +748,6 @@ if (FEATURE_TOOLTIP) {
 	trust_li = page.createElement('li');
 	trust_li.setAttribute("id", "ca-trust");
 	if (getMediawikiVersion(page) >= 1.17) {
-	    log("version = 1.17");
 	    trust_li.innerHTML = '<span><a href="' + articleURL
 		+ '" title="' + getMsg(lang, 'tabhover') + '">'
 		+ getMsg(lang, 'tabtext') + '</a></span>';
