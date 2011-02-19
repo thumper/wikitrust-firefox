@@ -85,7 +85,7 @@
 	};
 
 
-    const debug = false;		// to test new renderings
+    const debug = true;		// to test new renderings
     const default_WtURL = '.collaborativetrust.com/WikiTrust/'; // wikitrust
 
     const FEATURE_TOOLTIP = false;
@@ -291,6 +291,25 @@
 	return result;
     }
 
+    function getMediawikiVersion(page) {
+	var safeWin = page.defaultView;
+	var unsafeWin = safeWin.wrappedJSObject;
+	if (unsafeWin.mediaWiki) return 1.17;
+	return 1.16;
+    }
+
+    function getArticleVar(page, varname) {
+	var safeWin = page.defaultView;
+	var unsafeWin = safeWin.wrappedJSObject;
+	if (unsafeWin.mediaWiki[varname]) {
+	    log("var " + varname + " == " + unsafeWin.mediaWiki[varname]);
+	    return unsafeWin.mediaWiki[varname];
+	} else {
+	    log("var " + varname + " == " + unsafeWin[varname]);
+	    return unsafeWin[varname];
+	}
+    }
+
     function getMsg(lang, msg) {
 	if (!(lang in langmsgs)) lang = 'en';
 	if (!(msg in langmsgs[lang])) lang = 'en';
@@ -333,11 +352,9 @@
 	if (dir != '') revID =  '';
 	if (revID == '') revID = getQueryVariable(loc.search, 'diff');
 	try {
-	    var safeWin = page.defaultView;
-	    var unsafeWin = safeWin.wrappedJSObject;
 	    if (revID == '')
-		revID = unsafeWin.wgCurRevisionId;
-	    wgArticleId = unsafeWin.wgArticleId;
+		revID = getArticleVar(page, 'wgCurRevisionId');
+	    wgArticleId = getArticleVar(page, 'wgArticleId');
 	} catch (x) { alert(x); }
 
 	if (revID == '' && wgArticleId == '' && title == '') {
@@ -669,13 +686,11 @@ if (FEATURE_TOOLTIP) {
 	    var vote_a = page.getElementById('wt-vote-link');
 	    var vote_1 = page.getElementById('vote-button');
 	    var vote_2 = page.getElementById('vote-button-done');
-	    var safeWin = page.defaultView;
-	    var unsafeWin = safeWin.wrappedJSObject;
-	    var wgUserName = unsafeWin.wgUserName;
+	    var wgUserName = getArticleVar(page, 'wgUserName');
 	    if (wgUserName == null) wgUserName = '';
-	    var wgArticleId = unsafeWin.wgArticleId;
-	    var wgPageName = unsafeWin.wgPageName;
-	    var wgCurRevisionId = unsafeWin.wgCurRevisionId;
+	    var wgArticleId = getArticleVar(page, 'wgArticleId');
+	    var wgPageName = getArticleVar(page, 'wgPageName');
+	    var wgCurRevisionId = getArticleVar(page, 'wgCurRevisionId');
 	    if (vote_a) vote_a.innerHTML = 'Voting...';
 	    if (revID == '') revID = wgCurRevisionId;
 	    if (!/^\d+$/.test(revID) || !/^\d+$/.test(wgArticleId)) {
@@ -734,9 +749,16 @@ if (FEATURE_TOOLTIP) {
 	// And modify page to display "check trust" tab
 	trust_li = page.createElement('li');
 	trust_li.setAttribute("id", "ca-trust");
-	trust_li.innerHTML = '<a href="' + articleURL
-	    + '" title="' + getMsg(lang, 'tabhover') + '"><span>'
-	    + getMsg(lang, 'tabtext') + '</span></a>';
+	if (getMediawikiVersion(page) >= 1.17) {
+	    log("version = 1.17");
+	    trust_li.innerHTML = '<span><a href="' + articleURL
+		+ '" title="' + getMsg(lang, 'tabhover') + '">'
+		+ getMsg(lang, 'tabtext') + '</a></span>';
+	} else {
+	    trust_li.innerHTML = '<a href="' + articleURL
+		+ '" title="' + getMsg(lang, 'tabhover') + '"><span>'
+		+ getMsg(lang, 'tabtext') + '</span></a>';
+	}
 
 	var co_menu = page.getElementById('ca-view');	// new style Wp pages
 	if (!co_menu) co_menu = mainTab;		// fall back to old style
