@@ -1,4 +1,4 @@
-// Copyright 2009-2010, B. Thomas Adler
+// Copyright 2009-2011, B. Thomas Adler, Luca de Alfaro, and Ian Pye
 
 (function() {
   const langmsgs = {
@@ -36,6 +36,24 @@
 			+ '<tr><td>L\'informazione su questa revisione non è ancora stata calcolata.  Riprovate tra qualche decina di secondi: il sistema <a href="http://wikitrust.soe.ucsc.edu" class="external text" rel="nofollow">WikiTrust</a> sta calcolando l\'informazione per voi.</td></tr></table>'
 		 },
 	pt: { },
+	es: { success: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightgreen; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+	       + '<tr><td>El texto del artículo es coloreado de acuerdo a la cantidad de veces que ha sido revisado. Un fondo color anaranjado indica nuevo, texto sin revisar; el color blanco es para el texto que haya sido revisado por muchos autores de renombre. Usa CTRL-ALT-clic en la palabra (CMD-ALT en Mac), seras redirigido a la página diff correspondiente a la edición en donde la palabra se introdujo.</td></tr>'
+	       + '<tr><td>El color del texto y el origen son calculados por <a href="http://wikitrust.soe.ucsc.edu/" class="external text" title="http://wikitrust.soe.ucsc.edu/" rel="nofollow">WikiTrust</a>; Si deseas notificar algún problema, puedes enviar un informe de error <a href="http://code.google.com/p/wikitrust/issues" class="external text" title="http://code.google.com/p/wikitrust/issues" rel="nofollow">aquí</a>.</td></tr>'
+	       + '</table>',
+	       tabhover:  'Versión coloreada de la página de confianza',
+	       tabtext: 'WikiTrust',
+	       downloadtrust: '<p>Descargando información de confianza desde UC Santa Cruz...</p>',
+	       downloadhtml: '<p>Solicitando HTML desde Wikipedia...</p>',
+	       ErrWpAPI: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+	       + '<tr><td>Se ha producido un error mientras se establecía contacto con Wikipedia para solicitar el contenido HTML.</td></tr></table>',
+	       ErrBadTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+	       + '<tr><td>Se ha producido un error mientras se establecía contacto con la UCSC para solicitar el contenido de confianza.</td></tr></table>',
+	       ErrNoTrust: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+	       + '<tr><td>No hay información de color de confianza para la información disponible actualmente para la revisión que solicitaste.  '
+	       + 'Por favor, intenta un minuto más tarde, el proceso de colorear debe estár completo</td></tr></table>',
+	       ErrMsg: '<table border="1" cellpadding="5" cellspacing="0" style="background:lightpink; color:black; margin-top: 10px; margin-bottom: 10px;" id="wt-expl">'
+	       + '<tr><td>MSG</td></tr></table>',
+	},
 	no: {
 	    tabtext: 'wikitruth',
 	},
