@@ -820,7 +820,7 @@ if (FEATURE_VOTING) {
 	    var txt = li.innerHTML;
 	    var match = /title=([^&]+)&amp;curid=(\d+)&amp;diff=(\d+)&amp;/.exec(txt);
 	    if (!match) continue;
-	    var url = wtURL + 'RemoteAPI?method=quality'
+	    var url = wtURL + 'RemoteAPI?method=quality&format=text'
 		+ '&title=' + match[1]
 		+ '&pageid=' + match[2]
 		+ '&revid=' + match[3];
@@ -897,7 +897,7 @@ if (debug &&!wikiParams) log('maybeColorPage: params => no color');
 	if (!wikiParams) return;
 	addTrustHeaders(page);
 	var wtURL = getWikitrustAPI(page.location);
-	wtURL += 'RemoteAPI?method=wikiorhtml'
+	wtURL += 'RemoteAPI?method=wikiorhtml&format=text'
 	    + '&title=' + encodeURIComponent(wikiParams[0])
 	    + '&pageid=' + wikiParams[1]
 	    + '&revid=' + wikiParams[2];
