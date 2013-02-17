@@ -291,7 +291,7 @@
 		    enabled: result,
 		};
 	}
-	    
+
 	var enabled = enabledWikis[lang];
 	if ((now-enabled['lastcheck'])>3600) {
 	    enabled['lastcheck'] = now;
@@ -386,7 +386,7 @@
 	return [title, wgArticleId, revID];
     }
 
-    
+
 
     function getStrippedURL(loc) {
 	if (/&diff=/.test(loc.search) || /&action=/.test(loc.search)
@@ -526,9 +526,7 @@ if (debug) log("color_Wiki2Html: " + loc);
     function addTrustHeaders(page) {
 	var lang = getWikiLang(page.location);
 
-	var css = page.createElement('style');
-	css.setAttribute('type', 'text/css');
-	css.innerHTML= "" + <r><![CDATA[
+        var cssHTML; /* <<EOF
 .trust1 { background-color: #FFC05C; }
 .trust2 { background-color: #FFC870; }
 .trust3 { background-color: #FFD085; }
@@ -550,7 +548,10 @@ if (debug) log("color_Wiki2Html: " + loc);
   position: relative;
   text-align: right;
 }
-]]></r>;
+EOF*/
+	var css = page.createElement('style');
+	css.setAttribute('type', 'text/css');
+	css.innerHTML= cssHTML;
 
 	var script = page.createElement('script');
 	script.setAttribute('type', 'text/javascript');
@@ -755,7 +756,7 @@ if (FEATURE_TOOLTIP) {
 	if (mainTab.getAttribute("class") != "selected") return null;
 
 	var articleURL = getTrustTabURL(page.location);
-	
+
 	var trust_li = page.getElementById('ca-trust');
 	if (trust_li) {
 	    if (debug) log("trust tab already on page.");
@@ -783,7 +784,7 @@ if (FEATURE_TOOLTIP) {
 
 if (FEATURE_VOTING) {
 	var cite_li = page.getElementById('t-cite');
-	if (!cite_li) return trust_li;	
+	if (!cite_li) return trust_li;
 
 	var vote_a = page.createElement('a');
 	vote_a.setAttribute('id', 'wt-vote-link');
