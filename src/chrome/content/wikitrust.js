@@ -556,7 +556,7 @@ EOF*/
 	var script = page.createElement('script');
 	script.setAttribute('type', 'text/javascript');
 	// Note use of E4X definition
-	var src = "" + <r><![CDATA[
+	var src; /* <<EOF
 function showOrg2(ev, revnum) {
   if((!ev.ctrlKey &amp;&amp; !ev.metaKey) || !ev.altKey) return true;
   document.location.href = wgScriptPath + "/index.php?title=" + encodeURIComponent(wgPageName) + "&amp;diff=" + encodeURIComponent(revnum) + "&amp;trust";
@@ -614,7 +614,7 @@ function startVote(){
   }
   return sajax_do_call( "WikiTrust::ajax_recordVote", [wgUserName, wgArticleId, revID, wgPageName] , voteCallback );
 }
-]]></r>;
+EOF*/
 	script.appendChild( page.createTextNode( src ) );
 	var head = page.getElementsByTagName('head')[0];
 	head.appendChild(css);
