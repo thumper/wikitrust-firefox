@@ -458,10 +458,10 @@ if (debug) log("color_Wiki2Html: " + loc);
 	      json = undefined;
 
 	      // Fix edit section links
-	      colored_text = colored_text.replace(/<span class="editsection"([^>]*)>(.*?) title="(.*?)"/g,
+	      colored_text = colored_text.replace(/<span class="mw-editsection"([^>]*)>(.*?) title="(.*?)"/g,
 		function (match, one, two, three) {
 		  three = three.replace(/\{\{#t:\d+,\d+,[^}]+\}\}/g, '');
-		  return '<span class="editsection"'+one+'>'+two+' title="'+three+'"';
+		  return '<span class="mw-editsection"'+one+'>'+two+' title="'+three+'"';
 		}
 	      );
 
@@ -495,6 +495,12 @@ if (debug) log("color_Wiki2Html: " + loc);
       } catch (x) { log('color_Wiki2Html: ' + x); }
     }
 
+    function hereDoc(f) {
+      return f.toString().
+        replace(/^[^\/]+\/\*!?/, '').
+        replace(/\*\/[^\/]+$/, '');
+    }
+
     function fixHrefs(node) {
         if (node.nodeName == 'A') {
             var url = node.getAttribute('HREF');
@@ -526,7 +532,7 @@ if (debug) log("color_Wiki2Html: " + loc);
     function addTrustHeaders(page) {
 	var lang = getWikiLang(page.location);
 
-        var cssHTML; /* <<EOF
+        var cssHTML = hereDoc(function () {/*!
 .trust1 { background-color: #FFC05C; }
 .trust2 { background-color: #FFC870; }
 .trust3 { background-color: #FFD085; }
@@ -548,27 +554,27 @@ if (debug) log("color_Wiki2Html: " + loc);
   position: relative;
   text-align: right;
 }
-EOF*/
+*/});
 	var css = page.createElement('style');
 	css.setAttribute('type', 'text/css');
 	css.innerHTML= cssHTML;
+	if (debug) log('Adding CSS data: ' + cssHTML);
 
 	var script = page.createElement('script');
 	script.setAttribute('type', 'text/javascript');
-	// Note use of E4X definition
-	var src; /* <<EOF
+	var src = hereDoc(function () {/*!
 function showOrg2(ev, revnum) {
-  if((!ev.ctrlKey &amp;&amp; !ev.metaKey) || !ev.altKey) return true;
-  document.location.href = wgScriptPath + "/index.php?title=" + encodeURIComponent(wgPageName) + "&amp;diff=" + encodeURIComponent(revnum) + "&amp;trust";
+  if((!ev.ctrlKey && !ev.metaKey) || !ev.altKey) return true;
+  document.location.href = wgScriptPath + "/index.php?title=" + encodeURIComponent(wgPageName) + "&diff=" + encodeURIComponent(revnum) + "&trust";
   return false;
 }
 
 function ahref(ev) {
-  if((ev.metaKey||ev.ctrlKey) &amp;&amp; ev.altKey) return false;
+  if((ev.metaKey||ev.ctrlKey) && ev.altKey) return false;
   return true;
 }
 function voteCallback(http_request){
-  if ((http_request.readyState == 4) &amp;&amp; (http_request.status == 200)) {
+  if ((http_request.readyState == 4) && (http_request.status == 200)) {
     document.getElementById("vote-button-done").style.visibility = "visible";
     document.getElementById("vote-button").style.visibility = "hidden";
     //alert(http_request.responseText);
@@ -594,8 +600,8 @@ function voteCallback(http_request){
 
 function getQueryVariable(variable) {
   var query = window.location.search.substring(1);
-  var vars = query.split("&amp;");
-  for (var i=0;i &lt; vars.length;i++) {
+  var vars = query.split("&");
+  for (var i=0;i < vars.length;i++) {
     var pair = vars[i].split("=");
     if (pair[0] == variable) {
       return pair[1];
@@ -614,7 +620,8 @@ function startVote(){
   }
   return sajax_do_call( "WikiTrust::ajax_recordVote", [wgUserName, wgArticleId, revID, wgPageName] , voteCallback );
 }
-EOF*/
+*/});
+	if (debug) log('Adding script src: ' + src);
 	script.appendChild( page.createTextNode( src ) );
 	var head = page.getElementsByTagName('head')[0];
 	head.appendChild(css);
